@@ -25,18 +25,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-vhcwovj7s$2!%+o3w#u3xfd=z6zd%c(mf&5tdcs=sdv((e&hmo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    'https://537f75c23525.ngrok-free.app',
-    '127.0.0.1',          # ← sin coma dentro
+    'https://surmontertienda.cl',
+    '146.235.244.74',          # ← sin coma dentro
+    'http://146.235.244.74',
     'localhost',          # ← “localhost” basta; no incluyas esquema
-    '537f75c23525.ngrok-free.app',
+    'surmontertienda.cl',
+    'http://127.0.0.1:8000',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://537f75c23525.ngrok-free.app',
-    'http://localhost:8000',   # ← con esquema y sin “/” final
+    'https://surmontertienda.cl',
+    'http://146.235.244.74',   # ← con esquema y sin “/” final
     'http://127.0.0.1:8000',   # ← si también lo usas así
 ]
 
@@ -125,8 +127,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'Surmonter_Tienda',
-        'USER': 'root',
-        'PASSWORD': '',
+        'USER': 'Surmonter',
+        'PASSWORD': 'Surmonter',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }

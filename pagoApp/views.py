@@ -45,7 +45,7 @@ def preparar_pago(request):
         })
         total += precio_unitario * cantidad
 
-    base_url = "https://537f75c23525.ngrok-free.app"
+    base_url = "https://surmontertienda.cl"
 
     back_urls = {
         "success": f"{base_url}/pago/exito/",
