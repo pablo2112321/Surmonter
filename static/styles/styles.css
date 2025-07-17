@@ -1,0 +1,1066 @@
+
+.card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 20px;
+    transition: transform 0.3s;
+}
+
+.seccion-mapa {
+  background-color: #f4f4f4;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.seccion-mapa h3 {
+  font-size: 24px;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.seccion-mapa p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.mapa-embed iframe {
+  width: 100%;
+  max-width: 800px;
+  height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.seccion-mapa {
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.mapa-embed iframe {
+  width: 100%;
+  max-width: 1000px;
+  height: 400px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.card h3 {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.card p {
+    font-size: 16px;
+    color: #333;
+}
+
+.tallas {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.add-to-cart {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-to-cart:hover {
+    background-color: #555;
+}
+
+/* Estilos globales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+  }
+  
+  /* Encabezado */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #c9e9ff;
+  }
+  
+  header .logo img {
+    height: 65px;
+  }
+  
+  /* Estilo del contenedor de la barra de búsqueda */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd; /* Borde gris claro */
+    border-radius: 25px; /* Bordes redondeados */
+    padding: 5px 15px; /* Espaciado interno */
+    width: 100%; /* Ancho completo del contenedor */
+    max-width: 400px; /* Ancho máximo */
+    background-color: #fff; /* Fondo blanco */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+  }
+  
+  /* Estilo del campo de entrada */
+  .search-bar input {
+    border: none; /* Sin borde */
+    outline: none; /* Sin borde de enfoque */
+    flex: 1; /* Ocupar el espacio disponible */
+    padding: 10px; /* Espaciado interno */
+    font-size: 14px; /* Tamaño de fuente */
+    color: #555; /* Color del texto */
+  }
+  
+  /* Estilo del botón */
+  .search-bar button {
+    background: none; /* Sin fondo */
+    border: none; /* Sin borde */
+    cursor: pointer; /* Manito al pasar el ratón */
+    padding: 0; /* Sin espaciado */
+  }
+  
+  .search-bar button img {
+    width: 20px; /* Tamaño del ícono */
+    height: 20px;
+    opacity: 0.5; /* Ícono semitransparente */
+    transition: opacity 0.3s; /* Transición suave al pasar el ratón */
+  }
+  
+  /* Efecto hover en el botón */
+  .search-bar button img:hover {
+    opacity: 1; /* Totalmente visible al pasar el ratón */
+  }
+  
+  /* Contenedor principal */
+  .container {
+    display: flex; /* Flexbox para alinear los elementos en fila */
+    align-items: center; /* Centra verticalmente los elementos */
+    justify-content: flex-end; /* Alinea los elementos a la derecha */
+    width: auto; /* Ancho completo */
+    max-width: 1200px; /* Ancho máximo */
+    padding: 10px;
+  }
+  
+  /* Estilo del carrito */
+  .cart img {
+    width: 50px; /* Tamaño del ícono del carrito */
+    height: auto; /* Mantener proporción de la imagen */
+    cursor: pointer; /* Cambia el cursor a una mano */
+    transition: transform 0.3s ease; /* Suaviza el efecto de animación */
+    margin-right: 40px; /* Añade un margen a la derecha para separar el ícono */
+  }
+  
+  .cart img:hover {
+    transform: scale(1.2); /* Aumenta ligeramente el tamaño al pasar el cursor */
+  }
+  
+  /* Estilo del usuario */
+  .user img {
+    width: 50px; /* Tamaño del ícono de usuario */
+    height: auto; /* Mantener proporción de la imagen */
+    cursor: pointer; /* Cambia el cursor a una mano */
+    transition: transform 0.3s ease; /* Suaviza el efecto de animación */
+  }
+  
+  .user img:hover {
+    transform: scale(1.6); /* Aumenta ligeramente el tamaño al pasar el cursor */
+    width: auto;
+    height: auto;
+  }
+  
+  /* Navegación */
+  nav {
+    background-color:  #38baff ;
+    display: flex;
+    justify-content: center;
+    padding: 2px;
+  }
+  
+  /* Estilos básicos para el menú de navegación */
+  /* Navegación */
+nav {
+  background-color:  #00a8ff ;
+  display: flex;
+  justify-content: center;
+  padding: 2px;
+}
+
+/* Estilos básicos para el menú de navegación */
+.nav-menu {
+  list-style-type: none; /* Elimina los círculos (discos) predeterminados */
+  padding: 0;
+  margin: 0;
+  display: flex; /* Muestra los elementos en una fila */
+  flex-wrap: wrap; /* Permite que los elementos se ajusten en varias filas */
+  justify-content: center;
+}
+
+/* Estilo para los botones del submenú #38baff */
+.dropdown-btn {
+  background-color: #00a8ff; /* Color de fondo del botón */
+  color: white; /* Color del texto */
+  border: none; /* Sin bordes */
+  padding: 10px 20px; /* Espaciado interno */
+  font-size: 16px; /* Tamaño de la fuente */
+  cursor: pointer; /* Cursor de mano al pasar por encima */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: background-color 0.6s; /* Efecto suave en el cambio de color */
+  text-align: center;
+}
+
+/* Cambio de color al pasar el cursor por encima del botón */
+
+
+/* Estilo para el contenido del submenú */
+.dropdown-content {
+  display: none; /* Ocultamos el submenú por defecto */
+  position: absolute; /* Para que se posicione sobre otros elementos */
+  background-color: white; /* Fondo blanco */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+  min-width: 160px; /* Ancho mínimo para el submenú */
+  z-index: 1; /* Aseguramos que esté por encima de otros elementos */
+  border-radius: 10px; /* Bordes redondeados */
+  list-style: none;
+}
+
+/* Estilo para cada enlace dentro del submenú */
+.dropdown-content a {
+  color: black; /* Color del texto */
+  padding: 12px 16px; /* Espaciado interno */
+  text-decoration: none; /* Sin subrayado */
+  display: block; /* Los enlaces ocupan toda la línea */
+}
+
+/* Cambio de color al pasar el cursor sobre un enlace */
+.dropdown-content a:hover {
+  border-radius: 10px;
+  background-color: white; /* Fondo gris claro al pasar el cursor */
+}
+
+/* Mostrar el submenú al pasar el cursor sobre el contenedor de la lista */
+.dropdown:hover .dropdown-content {
+  display: block; /* Muestra el submenú */
+}
+
+
+
+
+/* Estilo del contenedor principal */
+.main-container {
+  display: flex; /* Usa flexbox para alinear las tarjetas */
+  justify-content: space-around; /* Espacio entre las tarjetas */
+  padding: 20px; /* Espaciado interno del contenedor */
+}
+
+/* Estilo de cada tarjeta */
+.card {
+  background-color: black; /* Color de fondo blanco */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  overflow: hidden; /* Oculta el desbordamiento */
+  width: 300px; /* Ancho fijo para cada tarjeta */
+  transition: transform 0.3s ease; /* Suaviza la animación al pasar el ratón */
+}
+
+/* Efecto al pasar el ratón sobre la tarjeta */
+.card:hover {
+  transform: translateY(-5px); /* Eleva la tarjeta ligeramente */
+}
+
+/* Estilo de la imagen dentro de la tarjeta */
+.card-image {
+  width: 100%; /* Ancho completo para que se ajuste a la tarjeta */
+  height: auto; /* Mantiene la proporción de la imagen */
+}
+
+/* Estilo del contenido dentro de la tarjeta */
+.card-content {
+  padding: 15px; /* Espaciado interno del contenido */
+}
+
+.card-content h2 {
+  margin: 0; /* Elimina márgenes por defecto del título */
+}
+
+.card-content p {
+  color: #555; /* Color del texto descriptivo */
+}
+
+/* General Styles */
+/* General Styles */
+
+body {
+
+  font-family: 'Arial', sans-serif;
+
+  margin: 0;
+
+  padding: 0;
+
+  background-color: #f9f9f9;
+
+  color: #333;
+
+}
+
+#C {
+  float: flex;
+  display: flex;
+}
+
+h1 {
+
+  text-align: center;
+
+  margin: 20px 0;
+
+  font-size: 24px;
+
+  color: #007BFF;
+
+}
+
+
+/* Products Grid */
+
+.products-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr); /* 4 columnas */
+
+  gap: 20px; /* Espacio entre tarjetas */
+
+  padding: 20px;
+
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+}
+
+
+/* Product Card */
+
+.product-card {
+
+  background-color: #fff;
+
+  border: 1px solid #ddd;
+
+  border-radius: 12px; /* Bordes más redondeados */
+
+  overflow: hidden;
+
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  padding: 15px; /* Espaciado interno */
+
+  text-align: center;
+
+  height: auto; /* Ajuste automático */
+
+}
+
+
+.product-card:hover {
+
+  transform: translateY(-5px);
+
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+}
+
+
+/* Product Image */
+
+.product-img-container {
+
+  width: 100%;
+
+  height: 200px; /* Altura fija para las imágenes */
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background-color: #f8f8f8;
+
+  margin-bottom: 15px;
+
+  border-radius: 8px; /* Bordes redondeados */
+
+  overflow: hidden; /* Para evitar que la imagen sobresalga */
+
+}
+
+
+.product-img {
+
+  max-width: 100%;
+
+  max-height: 100%;
+
+  object-fit: cover; /* Ajustar la imagen para cubrir el contenedor */
+
+}
+
+
+/* Product Details */
+
+.product-name {
+
+  font-size: 16px; /* Aumentar tamaño de fuente */
+
+  font-weight: bold;
+
+  color: #333;
+
+  margin: 5px 0;
+
+}
+
+
+.product-description {
+
+  font-size: 14px; /* Aumentar tamaño de fuente */
+
+  color: #666;
+
+  margin: 0 10px 10px;
+
+  line-height: 1.4; /* Mejorar legibilidad */
+
+}
+
+
+.product-price {
+
+  font-size: 16px; /* Aumentar tamaño de fuente */
+
+  color: #007BFF;
+
+  font-weight: bold;
+
+  margin-bottom: 10px;
+
+}
+
+
+/* Sizes and Colors */
+
+.product-sizes,
+
+.product-colors {
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px; /* Espacio entre botones */
+
+  margin-bottom: 10px;
+
+  flex-wrap: wrap;
+
+}
+
+
+.product-sizes button,
+
+.product-colors button {
+
+  padding: 8px 12px; /* Aumentar padding */
+
+  border: 1px solid #ddd;
+
+  border-radius: 6px; /* Bordes redondeados */
+
+  cursor: pointer;
+
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  font-size: 14px; /* Aumentar tamaño de fuente */
+
+}
+
+
+.product-sizes button:hover,
+
+.product-colors button:hover {
+
+  background-color: #eaeaea;
+
+  transform: scale(1.05);
+
+}
+
+
+.product-colors button {
+
+  width: 30px; /* Botones más pequeños */
+
+  height: 30px;
+
+  border-radius: 50%;
+
+}
+
+
+/* Selected State */
+
+.selected {
+
+  border: 2px solid #007BFF; /* Cambiar color de borde seleccionado */
+
+  transform: scale(1.1);
+
+}
+
+
+/* Add to Cart Button */
+
+.add-to-cart-button {
+
+  background-color: #007BFF;
+
+  color: #fff;
+
+  border: none;
+
+  padding: 10px 15px; /* Aumentar padding */
+
+  border-radius: 6px; /* Bordes redondeados */
+
+  font-size: 14px; /* Aumentar tamaño de fuente */
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  margin-top: 10px; /* Espacio entre el botón y el contenido anterior */
+
+}
+.buy-now-button {
+
+  background-color: #28a745; /* Color verde para el botón "Comprar ahora" */
+
+  color: #fff;
+
+  border: none;
+
+  padding: 10px 15px; /* Aumentar padding */
+
+  border-radius: 6px; /* Bordes redondeados */
+
+  font-size: 14px; /* Aumentar tamaño de fuente */
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  margin-top: 10px; /* Espacio entre el botón y el contenido anterior */
+
+}
+
+.add-to-cart-button:hover {
+
+  background-color: #0056b3;
+
+  transform: scale(1.05);
+
+}
+.buy-now-button:hover {
+
+  background-color: #218838; /* Color verde más oscuro al pasar el ratón */
+
+  transform: scale(1.05);
+
+}
+
+@media (max-width: 768px) {
+
+  .products-grid {
+
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en pantallas pequeñas */
+
+  }
+
+}
+
+
+@media (max-width: 480px) {
+
+  .products-grid {
+
+    grid-template-columns: 1fr; /* 1 columna en pantallas muy pequeñas */
+
+  }
+
+}
+/* Estilo para cuando el botón está presionado */
+button.pressed {
+  transform: scale(0.95); /* Reduce el tamaño del botón para simular que está presionado */
+  background-color: #0056b3; /* Cambia el color de fondo a un tono más oscuro */
+  border: 3px solid black;
+}
+
+
+/* Estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  background-color: white;
+}
+
+/* Encabezado */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px;
+  background-color: white;
+}
+
+header .logo img {
+  height: 65px;
+}
+
+/* Estilo del contenedor de la barra de búsqueda */
+.search-bar {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd; /* Borde gris claro */
+  border-radius: 25px; /* Bordes redondeados */
+  padding: 5px 15px; /* Espaciado interno */
+  width: 100%; /* Ancho completo del contenedor */
+  max-width: 400px; /* Ancho máximo */
+  background-color: #fff; /* Fondo blanco */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+/* Estilo del campo de entrada */
+.search-bar input {
+  border: none; /* Sin borde */
+  outline: none; /* Sin borde de enfoque */
+  flex: 1; /* Ocupar el espacio disponible */
+  padding: 10px; /* Espaciado interno */
+  font-size: 14px; /* Tamaño de fuente */
+  color: #555; /* Color del texto */
+}
+
+/* Estilo del botón */
+.search-bar button {
+  background: none; /* Sin fondo */
+  border: none; /* Sin borde */
+  cursor: pointer; /* Manito al pasar el ratón */
+  padding: 0; /* Sin espaciado */
+}
+
+.search-bar button img {
+  width: 20px; /* Tamaño del ícono */
+  height: 20px;
+  opacity: 0.5; /* Ícono semitransparente */
+  transition: opacity 0.3s; /* Transición suave al pasar el ratón */
+}
+
+/* Efecto hover en el botón */
+.search-bar button img:hover {
+  opacity: 1; /* Totalmente visible al pasar el ratón */
+}
+
+/* Contenedor principal */
+.container {
+  display: flex; /* Flexbox para alinear los elementos en fila */
+  align-items: center; /* Centra verticalmente los elementos */
+  justify-content: flex-end; /* Alinea los elementos a la derecha */
+  width: auto; /* Ancho completo */
+  max-width: 1200px; /* Ancho máximo */
+  padding: 10px;
+}
+
+/* Estilo del carrito */
+.cart img {
+  width: 50px; /* Tamaño del ícono del carrito */
+  height: auto; /* Mantener proporción de la imagen */
+  cursor: pointer; /* Cambia el cursor a una mano */
+  transition: transform 0.3s ease; /* Suaviza el efecto de animación */
+  margin-right: 40px; /* Añade un margen a la derecha para separar el ícono */
+}
+
+.cart img:hover {
+  transform: scale(1.2); /* Aumenta ligeramente el tamaño al pasar el cursor */
+}
+
+/* Estilo del usuario */
+.user img {
+  width: 50px; /* Tamaño del ícono de usuario */
+  height: auto; /* Mantener proporción de la imagen */
+  cursor: pointer; /* Cambia el cursor a una mano */
+  transition: transform 0.3s ease; /* Suaviza el efecto de animación */
+}
+
+.user img:hover {
+  transform: scale(1.2); /* Aumenta ligeramente el tamaño al pasar el cursor */
+}
+
+/* Navegación */
+nav {
+  background-color:  #00a8ff ;
+  display: flex;
+  justify-content: center;
+  padding: 2px;
+}
+
+/* Estilos básicos para el menú de navegación */
+.nav-menu {
+  list-style-type: none; /* Elimina los círculos (discos) predeterminados */
+  padding: 0;
+  margin: 0;
+  display: flex; /* Muestra los elementos en una fila */
+  flex-wrap: wrap; /* Permite que los elementos se ajusten en varias filas */
+  justify-content: center;
+}
+
+/* Estilo para los botones del submenú #38baff */
+.dropdown-btn {
+  background-color: #00a8ff; /* Color de fondo del botón */
+  color: white; /* Color del texto */
+  border: none; /* Sin bordes */
+  padding: 10px 20px; /* Espaciado interno */
+  font-size: 16px; /* Tamaño de la fuente */
+  cursor: pointer; /* Cursor de mano al pasar por encima */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: background-color 0.6s; /* Efecto suave en el cambio de color */
+  text-align: center;
+}
+
+/* Cambio de color al pasar el cursor por encima del botón */
+
+
+/* Estilo para el contenido del submenú */
+.dropdown-content {
+  display: none; /* Ocultamos el submenú por defecto */
+  position: absolute; /* Para que se posicione sobre otros elementos */
+  background-color: white; /* Fondo blanco */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+  min-width: 160px; /* Ancho mínimo para el submenú */
+  z-index: 1; /* Aseguramos que esté por encima de otros elementos */
+  border-radius: 10px; /* Bordes redondeados */
+  list-style: none;
+}
+
+/* Estilo para cada enlace dentro del submenú */
+.dropdown-content a {
+  color: black; /* Color del texto */
+  padding: 12px 16px; /* Espaciado interno */
+  text-decoration: none; /* Sin subrayado */
+  display: block; /* Los enlaces ocupan toda la línea */
+}
+
+/* Cambio de color al pasar el cursor sobre un enlace */
+.dropdown-content a:hover {
+  border-radius: 10px;
+  background-color: white; /* Fondo gris claro al pasar el cursor */
+}
+
+/* Mostrar el submenú al pasar el cursor sobre el contenedor de la lista */
+.dropdown:hover .dropdown-content {
+  display: block; /* Muestra el submenú */
+}
+
+/* Estilo básico para el carrusel */
+.carousel {
+  position: relative; /* Para posicionar elementos dentro del contenedor */
+  width: 100%; /* Ancho del carrusel */
+  height: 80%;
+  margin: 20px auto; /* Centrar el carrusel en la página */
+  overflow: hidden; /* Ocultar contenido que se salga del contenedor */
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra elegante */
+}
+
+.carousel-images {
+  display: flex; /* Las imágenes se alinean en fila */
+  transition: transform 0.5s ease-in-out; /* Transición suave entre imágenes */
+}
+
+.carousel-images img {
+  width: 100%; /* Cada imagen ocupa todo el ancho del carrusel */
+  flex-shrink: 0; /* Las imágenes no se encogen */
+}
+
+.carousel-indicators {
+  position: absolute; /* Superponen al carrusel */
+  bottom: 10px; /* Posicionados en la parte inferior */
+  left: 50%; /* Centrados horizontalmente */
+  transform: translateX(-50%); /* Ajuste para centrar completamente */
+  display: flex; /* Mostrar los indicadores en fila */
+  gap: 10px; /* Espaciado entre indicadores */
+}
+
+.carousel-indicators button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%; /* Forma circular */
+  background-color: white; /* Color de fondo */
+  border: none; /* Sin borde */
+  cursor: pointer; /* Cursor de mano al pasar por encima */
+  opacity: 0.5; /* Indicadores semi-transparentes */
+}
+
+.carousel-indicators button.active {
+  opacity: 1; /* Indicador activo completamente visible */
+  background-color: #3498db; /* Color destacado */
+}
+
+/* Productos */
+#productos {
+  text-align: center;
+
+}
+p {
+  text-align: center;
+  text-align: justify;
+}
+a {
+  text-decoration: none;
+  color: black;
+}
+a:visited {
+  color: black;
+}
+a:focus {
+  outline: none;
+}
+
+/* styles.css */
+
+/* Estilo del contenedor principal */
+.main-container {
+  display: flex; /* Usa flexbox para alinear las tarjetas */
+  justify-content: space-around; /* Espacio entre las tarjetas */
+  padding: 20px; /* Espaciado interno del contenedor */
+}
+
+/* Estilo de cada tarjeta */
+.card {
+  background-color: white; /* Color de fondo blanco */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  overflow: hidden; /* Oculta el desbordamiento */
+  width: 300px; /* Ancho fijo para cada tarjeta */
+  transition: transform 0.3s ease; /* Suaviza la animación al pasar el ratón */
+}
+ 
+/* Efecto al pasar el ratón sobre la tarjeta */
+.card:hover {
+  transform: translateY(-5px); /* Eleva la tarjeta ligeramente */
+}
+
+/* Estilo de la imagen dentro de la tarjeta */
+.card-image {
+  width: 100%; /* Ancho completo para que se ajuste a la tarjeta */
+  height: auto; /* Mantiene la proporción de la imagen */
+}
+
+/* Estilo del contenido dentro de la tarjeta */
+.card-content {
+  padding: 15px; /* Espaciado interno del contenido */
+}
+
+.card-content h2 {
+  margin: 0; /* Elimina márgenes por defecto del título */
+}
+
+.card-content p {
+  color: #555; /* Color del texto descriptivo */
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .container {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .nav-menu {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .carousel {
+    width: 100%;
+  }
+
+  .search-bar {
+    max-width: 100%;
+    margin-top: 10px;
+    
+  }
+}
+
+/* Estilos para el footer */
+footer {
+    background-color: #3a6f9c; /* Color complementario */
+    color: white; /* Color del texto */
+    padding: 20px 0; /* Espaciado vertical */
+}
+
+.footer-container {
+    display: flex; /* Usar flexbox para alinear los elementos */
+    justify-content: space-between; /* Espacio entre los elementos */
+    align-items: flex-start; /* Alinear elementos al inicio */
+    max-width: 1200px; /* Ancho máximo del contenedor */
+    margin: 0 auto; /* Centrar el contenedor */
+    flex-wrap: wrap; /* Permitir que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.payment-methods, .contact, .brand {
+    flex: 1; /* Cada sección ocupa el mismo espacio */
+    padding: 20px; /* Espaciado interno aumentado para separación */
+    min-width: 250px; /* Ancho mínimo para cada sección */
+    margin: 10px; /* Margen entre secciones para separación visual */
+    border-radius: 8px; /* Bordes redondeados para un mejor aspecto */
+}
+
+.payment-image {
+    max-width: 100%; /* Ajustar la imagen al ancho del contenedor */
+    height: auto; /* Mantener proporción de la imagen */
+}
+
+.brand-logo {
+    max-width: 400px; /* Ancho máximo para el logo */
+    height: auto; /* Mantener proporción de la imagen */
+}
+
+.footer-bottom {
+    display: flex;
+    text-align: center; /* Centrar el texto en la parte inferior */
+    padding: 15px 0; /* Espaciado vertical */
+    background-color: #2c3e50; /* Color de fondo ligeramente más oscuro para la parte inferior */
+}
+
+.footer-bottom p {
+    margin: 0; /* Eliminar márgenes por defecto */
+}
+
+/* Estilos para enlaces en el footer */
+footer a {
+    color: #1abc9c; /* Color verde para los enlaces */
+    text-decoration: none; /* Sin subrayado por defecto */
+}
+
+footer a:hover {
+    text-decoration: underline; /* Subrayado al pasar el ratón */
+}
+
+/* Media Queries para Responsividad */
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column; /* Cambiar a columna en pantallas pequeñas */
+        align-items: center; /* Centrar los elementos horizontalmente */
+        text-align: center; /* Alinear texto al centro */
+    }
+
+    .payment-methods, .contact, .brand {
+        min-width: auto; /* Eliminar ancho mínimo en pantallas pequeñas */
+        width: 100%; /* Hacer que cada sección ocupe el ancho completo */
+        margin-bottom: 20px; /* Espacio entre las secciones en pantallas pequeñas */
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* Estilo para los botones */
+.add-to-cart, .buy-now {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.add-to-cart:hover, .buy-now:hover {
+  background-color: #45a049;
+}
+
+/* Estilos para el carrito */
+#cart-items {
+  margin-top: 20px;
+}
+
+.cart-item {
+  margin-bottom: 15px;
+}
+
+.logo-instagram{
+  width: 55px;
+  height: 55px;
+  margin-right: 10px;
+  border-radius: 10%;
+}
+.logo-whatsapp{
+  width: 55px;
+  height: 55px;
+  margin-right: 10px;
+  border-radius: 50%;
+}

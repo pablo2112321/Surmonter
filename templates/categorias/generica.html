@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ categoria.nombre }}</title>
+  <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
+  <style>
+    .talla-button.selected {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+      font-weight: bold;
+    }
+    .product-variantes {
+      margin: 10px 0;
+    }
+    .talla-button {
+      margin: 4px;
+      padding: 6px 10px;
+      background-color: #f4f4f4;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .talla-button:hover {
+      background-color: #e0e0e0;
+    }
+    .talla-button:disabled {
+      background-color: #ddd;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .buy-now-button {
+      margin-top: 8px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      background-color: #28a745;
+      color: white;
+    }
+    .buy-now-button:hover {
+      background-color: #218838;
+    }
+    #mensaje-alerta {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      z-index: 1000;
+      display: none;
+    }
+    .talla-button {
+  -webkit-tap-highlight-color: transparent; /* Quita gris en móvil */
+  outline: none;
+  user-select: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.talla-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.talla-button.selected {
+  background-color: #007bff !important;
+  color: white !important;
+  border-color: #007bff !important;
+}
+
+  </style>
+</head>
+
+<body>
+{% include 'reciclables/header.html' %}
+
+<section id="productos">
+  <h1>Productos en la categoría {{ categoria.nombre }}</h1>
+  <div class="products-grid">
+    {% for producto in productos %}
+      <div class="product-card">
+        <div class="product-img-container">
+          <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="product-img">
+        </div>
+        <h3 class="product-name">{{ producto.nombre }}</h3>
+        <p class="product-price">${{ producto.precio|floatformat:0 }}</p>
+        <p class="product-description">{{ producto.descripcion }}</p>
+
+        <form class="form-compra" data-producto-id="{{ producto.id }}">
+          {% csrf_token %}
+          <div class="product-variantes">
+            <p><strong>Tallas disponibles:</strong></p>
+            <div class="talla-selector">
+              {% for variante in producto.variantes.all %}
+                <button type="button" class="talla-button"
+                        data-talla="{{ variante.talla }}"
+                        {% if variante.stock == 0 %}disabled{% endif %}>
+                  {{ variante.talla }} ({{ variante.stock }})
+                </button>
+              {% empty %}
+                <p>Sin tallas configuradas.</p>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="talla" class="talla-input">
+          </div>
+
+          <input type="hidden" name="producto_id" value="{{ producto.id }}">
+          <button type="button" class="buy-now-button btn-agregar">Agregar al carrito</button>
+        </form>
+      </div>
+    {% empty %}
+      <p>No hay productos en esta categoría.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<div id="mensaje-alerta"></div>
+{% include 'reciclables/footer.html' %}
+
+<script>
+  function mostrarMensaje(mensaje) {
+    const div = document.createElement("div");
+    div.textContent = mensaje;
+    div.style.position = "fixed";
+    div.style.bottom = "20px";
+    div.style.right = "20px";
+    div.style.background = "#28a745";
+    div.style.color = "white";
+    div.style.padding = "10px 20px";
+    div.style.borderRadius = "5px";
+    div.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.3)";
+    div.style.zIndex = "9999";
+
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 3000);
+  }
+
+  function actualizarContadorCarrito(totalItems) {
+    const contador = document.getElementById("contador-carrito");
+    if (contador) {
+      contador.textContent = totalItems;
+      contador.style.display = totalItems > 0 ? "inline-block" : "none";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const container = document.querySelector('.products-grid');
+
+    container?.addEventListener('click', async (event) => {
+      const tallaBtn = event.target.closest('.talla-button');
+      const btnAgregar = event.target.closest('.btn-agregar');
+
+      // Selección y deselección de talla
+      if (tallaBtn) {
+        const form = tallaBtn.closest('.form-compra');
+        const inputTalla = form.querySelector('.talla-input');
+
+        if (tallaBtn.classList.contains('selected')) {
+          tallaBtn.classList.remove('selected');
+          inputTalla.value = '';
+        } else {
+          form.querySelectorAll('.talla-button').forEach(b => b.classList.remove('selected'));
+          tallaBtn.classList.add('selected');
+          inputTalla.value = tallaBtn.dataset.talla;
+        }
+        tallaBtn.blur(); // quitar foco para evitar color azul/gris
+        return;
+      }
+
+      // Agregar al carrito con bloqueo para evitar doble clic
+      if (btnAgregar) {
+        event.preventDefault();
+
+        if (btnAgregar.disabled) return;
+        btnAgregar.disabled = true;
+
+        const form = btnAgregar.closest('.form-compra');
+        const tallaInput = form.querySelector('.talla-input');
+        const talla = tallaInput.value;
+        const productoId = form.dataset.productoId;
+        const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        if (!talla) {
+          alert("Por favor selecciona una talla antes de agregar al carrito.");
+          btnAgregar.disabled = false;
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('talla', talla);
+
+        try {
+          const response = await fetch(`/carrito/agregar/${productoId}/`, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'X-CSRFToken': csrfToken
+            },
+            body: formData
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            mostrarMensaje(`${data.nombre} (Talla ${data.talla}) agregado al carrito.`);
+            actualizarContadorCarrito(data.carrito_total_items);
+
+            tallaInput.value = '';
+            form.querySelectorAll('.talla-button').forEach(b => b.classList.remove('selected'));
+          } else {
+            mostrarMensaje("Ocurrió un error al agregar el producto.");
+          }
+        } catch {
+          mostrarMensaje("No se pudo conectar al servidor.");
+        } finally {
+          btnAgregar.disabled = false;
+        }
+      }
+    });
+  });
+</script>
+
+
+
+</body>
+</html>

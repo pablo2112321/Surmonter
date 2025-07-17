@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block titulo %}Panel Admin{% endblock %}</title>
+  {% load static %}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main.container {
+      flex-grow: 1;
+      max-width: 1200px;
+      margin-top: 20px;
+    }
+    /* Sidebar básico fijo */
+    #sidebar {
+      min-width: 220px;
+      max-width: 220px;
+      background: #343a40;
+      color: white;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 60px;
+    }
+    #sidebar a {
+      color: #ddd;
+      text-decoration: none;
+      display: block;
+      padding: 10px 20px;
+      font-weight: 500;
+    }
+    #sidebar a:hover, #sidebar a.active {
+      background: #495057;
+      color: white;
+    }
+    #content-wrapper {
+      margin-left: 220px;
+      padding: 20px;
+      width: calc(100% - 220px);
+    }
+    /* Mejorar tabla */
+    table.table th, table.table td {
+      vertical-align: middle;
+    }
+    .category-list ul {
+      padding-left: 1rem;
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  {% include 'reciclables/header.html' %}
+
+  <div id="sidebar">
+    <h4 class="text-center py-3">Panel Admin</h4>
+    <a href="{% url 'panel_admin' %}" class="{% if not request.GET.accion %}active{% endif %}">Productos</a>
+    <a href="{% url 'panel_admin' %}?accion=ventas" class="{% if request.GET.accion == 'ventas' %}active{% endif %}">Ventas</a>
+    <a href="{% url 'panel_admin' %}?accion=agregar" class="{% if request.GET.accion == 'agregar' %}active{% endif %}">Agregar Producto</a>
+    <a href="{% url 'panel_admin' %}?accion=categoria" class="{% if request.GET.accion == 'categoria' %}active{% endif %}">Categorías</a>
+  </div>
+
+  <main id="content-wrapper" class="container">
+    {% block contenido %}{% endblock %}
+    {% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+  </main>
+
+  <!-- En el <head> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Al final del <body> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  {% include 'reciclables/footer.html' %}
+  
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,92 @@
+<div class="row">
+  <!-- Formulario -->
+  <div class="col-lg-5 mb-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">
+          {% if bloque == 'editarcat' %}Editar Categoría{% else %}Nueva Categoría{% endif %}
+        </h5>
+        
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            {{ form.nombre }}
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Categoría padre (opcional)</label>
+            {{ form.padre }}
+          </div>
+          
+          <div class="d-flex justify-content-between">
+            <a href="?accion=categoria" class="btn btn-outline-secondary">
+              Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+              {% if bloque == 'editarcat' %}Actualizar{% else %}Guardar{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado -->
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="card-title mb-0">Categorías existentes</h5>
+          <span class="badge bg-primary rounded-pill">{{ categorias.count }}</span>
+        </div>
+        
+        <div class="list-group list-group-flush">
+          {% for cat in categorias %}
+            {% if not cat.padre %}
+              <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="fw-bold">{{ cat.nombre }}</div>
+                  <div class="btn-group btn-group-sm">
+                    <a href="?accion=editarcat&id={{ cat.id }}" class="btn btn-outline-warning">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="?accion=eliminarcat&id={{ cat.id }}" class="btn btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                    <a href="?accion=categoria&padre_id={{ cat.id }}" class="btn btn-outline-success">
+                      <i class="bi bi-plus-lg"></i>
+                    </a>
+                  </div>
+                </div>
+                
+                {% for subcat in categorias %}
+                  {% if subcat.padre == cat %}
+                    <div class="list-group-item ps-4 mt-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div><i class="bi bi-arrow-return-right me-2"></i>{{ subcat.nombre }}</div>
+                        <div class="btn-group btn-group-sm">
+                          <a href="?accion=editarcat&id={{ subcat.id }}" class="btn btn-outline-warning">
+                            <i class="bi bi-pencil"></i>
+                          </a>
+                          <a href="?accion=eliminarcat&id={{ subcat.id }}" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% empty %}
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-folder-x fs-1"></i>
+              <p class="mt-2">No hay categorías registradas</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

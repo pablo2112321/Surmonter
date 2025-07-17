@@ -1,0 +1,204 @@
+{% load static %}
+<style>
+  .cart-counter {
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 3px 7px;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+  }
+
+  .cart {
+    position: relative;
+  }
+
+  .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 101;
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .search-bar button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+
+  .search-bar button img {
+    width: 20px;
+    height: 20px;
+  }
+
+  #results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    margin-top: 6px;
+    list-style: none;
+    z-index: 100;
+    max-height: 320px;
+    overflow-y: auto;
+    display: none;
+  }
+
+  #results li {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s ease;
+  }
+
+  #results li:hover {
+    background-color: #f3f3f3;
+  }
+
+  #results li img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  #results li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+</style>
+
+<header>
+  <div class="logo">
+    <a href="{% url 'Inicio' %}">
+      <img src="{% static 'img/Logo.png' %}" alt="Logo Surmonter">
+    </a>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Busca en toda la tienda...">
+    <ul id="results"></ul>
+    <button type="submit">
+      <img src="{% static 'img/Buscar.jpg' %}" alt="Buscar" />
+    </button>
+  </div>
+
+  <div class="container">
+    <!-- Carrito -->
+    <div class="cart">
+      <a href="{% url 'ver_carrito' %}">
+        <img src="{% static 'img/shopping-cart.png' %}" alt="Carrito de compras">
+        <span id="contador-carrito"
+              class="cart-counter"
+              {% if not carrito_total_items %}style="display:none;"{% endif %}>
+          {{ carrito_total_items }}
+        </span>
+      </a>
+    </div>
+
+    <!-- Usuario (comentado) 
+    {# 
+    <div class="user">
+      <a href="{% url 'usuario' %}">
+        <img src="{% static 'img/user.png' %}" alt="user">
+      </a>
+    </div>
+    #}
+  </div>
+  -->
+</header>
+
+<nav>
+  <ul class="nav-menu">
+    {% for categoria in menu_categorias %}
+    <li class="dropdown">
+      <button class="dropdown-btn">{{ categoria.nombre }}</button>
+      {% if categoria.subcategorias.exists %}
+      <ul class="dropdown-content">
+        {% for sub in categoria.subcategorias.all %}
+        <li>
+          <a href="{% url 'mostrar_categoria' sub.nombre %}">{{ sub.nombre }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <ul class="dropdown-content">
+        <li>
+          <a href="{% url 'mostrar_categoria' categoria.nombre %}">Ver productos</a>
+        </li>
+      </ul>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("search");
+    const results = document.getElementById("results");
+
+    input.addEventListener("input", () => {
+      const query = input.value.trim();
+      results.innerHTML = "";
+
+      if (query.length < 2) {
+        results.style.display = "none";
+        return;
+      }
+
+      fetch(`/buscar/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length === 0) {
+            results.innerHTML = "<li>No se encontraron productos.</li>";
+            results.style.display = "block";
+            return;
+          }
+
+          results.style.display = "block";
+
+          data.forEach(producto => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <a href="${producto.url}">
+                <img src="${producto.imagen}" alt="${producto.nombre}" style="width:30px; margin-right:8px;">
+                ${producto.nombre}
+              </a>`;
+            results.appendChild(li);
+          });
+        });
+    });
+  });
+</script>
+

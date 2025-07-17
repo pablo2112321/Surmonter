@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inicio | Surmonter{% endblock %}
+
+{% block extra_head %}
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+
+  </style>
+{% endblock %}
+
+{% block content %}
+<!-- 🖼️ Carrusel -->
+<div class="carousel">
+  <div class="carousel-images">
+    <img src="{% static 'img/carrusel-1.jpeg' %}" alt="Imagen 1">
+    <img src="{% static 'img/carrusel-2.jpeg' %}" alt="Imagen 2">
+    <img src="{% static 'img/carrusel-3.jpeg' %}" alt="Imagen 3">
+  </div>
+  <div class="carousel-indicators">
+    <button data-index="0" class="active"></button>
+    <button data-index="1"></button>
+    <button data-index="2"></button>
+  </div>
+</div>
+
+<!-- 🛍️ Productos destacados -->
+<h1 id="productos">Revisa nuestros productos</h1>
+<main class="main-container">
+  <div class="card">
+    <img src="{% static 'img/producto-1.jpg' %}" alt="Descripción de la imagen 1" class="card-image">
+    <div class="card-content">
+      <h2>Polera Japón</h2>
+      <p>Adidas Dragon Ball Z</p>
+    </div>
+  </div>
+  <div class="card">
+    <img src="{% static 'img/producto-2.jpg' %}" alt="Descripción de la imagen 2" class="card-image">
+    <div class="card-content">
+      <h2>Polera FcBarcelona</h2>
+      <p>2024-2025</p>
+    </div>
+  </div>
+  <div class="card">
+    <img src="{% static 'img/producto-3.jpg' %}" alt="Descripción de la imagen 3" class="card-image">
+    <div class="card-content">
+      <h2>Polera Japón</h2>
+      <p>Adidas Anime</p>
+    </div>
+  </div>
+</main>
+
+<!-- 📍 Ubicación -->
+<section class="seccion-mapa">
+  <h3>📍 Nuestra ubicación</h3>
+  <h1>Camilo Henríquez 807, local 3 (2do piso), Valdivia</h1>
+  <div class="mapa-embed">
+    <iframe src="https://www.google.com/maps?q=Camilo+Henríquez+807+Valdivia+Chile&output=embed"
+      width="30%" height="200" style="border:0;" allowfullscreen loading="lazy"></iframe>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const carrusel = document.querySelector(".carousel-images");
+    const indicadores = document.querySelectorAll(".carousel-indicators button");
+    const imagenes = carrusel.querySelectorAll("img");
+    let indiceActual = 0;
+
+    function mostrarImagen(index) {
+      carrusel.style.transform = `translateX(-${index * 100}%)`;
+      indicadores.forEach(btn => btn.classList.remove("active"));
+      if (indicadores[index]) indicadores[index].classList.add("active");
+      indiceActual = index;
+    }
+
+    setInterval(() => {
+      const siguiente = (indiceActual + 1) % imagenes.length;
+      mostrarImagen(siguiente);
+    }, 3000);
+
+    indicadores.forEach(btn => {
+      btn.addEventListener("click", () => {
+        mostrarImagen(parseInt(btn.dataset.index));
+      });
+    });
+
+    mostrarImagen(0);
+  });
+</script>
+
+{% endblock %}
+
+

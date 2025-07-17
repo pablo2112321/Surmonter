@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="alert alert-warning p-4 text-center">
+    <h4 class="alert-heading">¿Eliminar categoría "{{ categoria.nombre }}"?</h4>
+    <p class="mb-4">Esta acción no se puede deshacer</p>
+    
+    <form method="post" class="d-flex justify-content-center gap-3">
+      {% csrf_token %}
+      <a href="?accion=categoria" class="btn btn-secondary">Cancelar</a>
+      <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+    </form>
+    
+    {% if Producto.objects.filter(categoria=categoria).exists() %}
+    <div class="alert alert-danger mt-3">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      Advertencia: Hay {{ Producto.objects.filter(categoria=categoria).count() }} productos asociados a esta categoría
+    </div>
+    {% endif %}
+  </div>
+</div>
