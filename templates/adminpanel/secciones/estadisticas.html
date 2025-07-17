@@ -1,0 +1,105 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title mb-4">Estadísticas</h5>
+    
+    <div class="row mb-4">
+      <!-- Tarjeta 1 -->
+      <div class="col-md-4 mb-3">
+        <div class="card border-0 bg-primary bg-opacity-10">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="text-muted">Ventas (30d)</h6>
+                <h3>{{ ventas_30d.count }}</h3>
+              </div>
+              <div class="bg-primary bg-opacity-25 p-3 rounded">
+                <i class="bi bi-cart-check text-primary"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tarjeta 2 -->
+      <div class="col-md-4 mb-3">
+        <div class="card border-0 bg-success bg-opacity-10">
+          <div class="card-body">
+            <div class="d-flex justify-content-between">
+              <div>
+                <h6 class="text-muted">Ingresos (30d)</h6>
+                <h3>${{ ingresos_30d|floatformat:0 }}</h3>
+              </div>
+              <div class="bg-success bg-opacity-25 p-3 rounded">
+                <i class="bi bi-currency-dollar text-success"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h6 class="card-title">Ventas últimos 30 días</h6>
+        <canvas id="chartVentas" height="150"></canvas>
+      </div>
+    </div>
+
+    <!-- Tabla de productos más vendidos -->
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title mb-3">Productos más vendidos</h6>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="text-end">Unidades</th>
+                <th class="text-end">Ingresos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in productos_mas_vendidos %}
+              <tr>
+                <td>{{ p.items__producto__nombre }}</td>
+                <td class="text-end">{{ p.total_vendido }}</td>
+                <td class="text-end">${{ p.ingresos|floatformat:0 }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('chartVentas').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ fechas_30d|safe }},
+      datasets: [{
+        label: 'Ventas diarias',
+        data: {{ ventas_diarias|safe }},
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+        fill: true,
+        backgroundColor: 'rgba(75, 192, 192, 0.1)'
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+});
+</script>

@@ -1,0 +1,94 @@
+{% load static %}
+
+<style>
+  .map iframe {
+    border-radius: 10px;
+    width: 100%;
+    height: 200px;
+  }
+
+  .map p {
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  footer h5 {
+    color: #ccc;
+    margin-top: 10px;
+  }
+  .map iframe {
+  border-radius: 10px;
+  width: 100%;
+  height: 200px;
+}
+
+.map p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.map p {
+  margin: 10px 0;
+  font-size: 15px;
+  color: #eee;
+  font-weight: 500;
+  text-align: center;
+}
+.brand {
+  text-align: center;
+}
+
+.brand .map {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+</style>
+<footer>
+  <div class="footer-container">
+    <div class="payment-methods">
+      <h4>Métodos de Pago</h4>
+      <img src="{% static 'img/pago.png' %}" alt="Métodos de Pago" class="payment-image">
+    </div>
+
+    <div class="contact">
+      <h4>Surmonter - Contáctanos</h4>
+      <p>Gmail: surmontertienda@gmail.com</p>
+      <a href="https://www.instagram.com/surmonter.deportes/">
+        <img src="{% static 'img/instagram-logo.jpg' %}?v=1" alt="instagram" class="logo-instagram">
+      </a>
+      <h5>Surmonter.Deportes</h5>
+      <a href="https://www.instagram.com/surmonter.deportes/">
+        <img src="{% static 'img/instagram-logo.jpg' %}?v=1" alt="instagram" class="logo-instagram">
+      </a>
+      <h5>Surmonter.Estampados</h5>
+      <a href="https://wa.me/56956652265">
+        <img src="{% static 'img/whatsapp-logo.jpg' %}?v=1" alt="WhatsApp" class="logo-whatsapp">
+      </a>
+      <h5>+569 56652265</h5>
+    </div>
+
+    <div class="brand">
+  <img src="{% static 'img/Logo.png' %}" alt="Logo de Surmonter" class="brand-logo">
+  
+  <div class="map">
+    <p>📍 Camilo Henríquez 807, local 3 (2do piso), Valdivia</p>
+    <iframe 
+      src="https://www.google.com/maps?q=Camilo+Henríquez+807+Valdivia+Chile&output=embed" 
+      width="100%" 
+      height="200" 
+      style="border:0;" 
+      allowfullscreen 
+      loading="lazy">
+    </iframe>
+  </div>
+</div>
+
+
+
+
+    </div>
+  </div>
+  
+
+  <h5 style="text-align: center; padding-left: 30px;">&copy; 2025 Surmonter. Todos los derechos reservados.</h5>
+</footer>

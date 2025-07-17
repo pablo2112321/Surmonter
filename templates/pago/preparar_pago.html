@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">🛒 Confirmación de compra</h2>
+
+  {% if carrito %}
+    <table class="table table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th>Producto</th>
+          <th>Talla</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in carrito.values %}
+        <tr>
+          <td>{{ item.nombre }}</td>
+          <td>{{ item.talla }}</td>
+          <td>{{ item.cantidad }}</td>
+          <td>${{ item.precio }}</td>
+          <td>${{ item.precio|floatformat:0|add:item.cantidad|floatformat:0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="text-end fs-5 fw-bold mt-3">
+      Total: ${{ total }}
+    </div>
+
+    <!-- Botón de MercadoPago -->
+    <form method="GET" action="https://www.mercadopago.cl/checkout/v1/redirect">
+      <input type="hidden" name="preference-id" value="{{ preference_id }}">
+      <button type="submit" class="btn btn-success btn-lg mt-4">Pagar ahora con MercadoPago 💳</button>
+    </form>
+  {% else %}
+    <p class="text-danger">Tu carrito está vacío.</p>
+  {% endif %}
+</div>
+{% endblock %}

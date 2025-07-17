@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}Error en compra{% endblock %}
+
+{% block content %}
+  <h2 style="color: red;">❌ Ha ocurrido un error</h2>
+  <p>{{ mensaje }}</p>
+
+  <a href="{% url 'ver_carrito' %}"><button> Volver al carrito</button></a>
+{% endblock %}

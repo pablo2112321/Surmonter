@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}SurmonterTienda{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  {% include 'reciclables/header.html' %}
+
+  <main style="padding: 20px;">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include 'reciclables/footer.html' %}
+  
+</body>
+</html>

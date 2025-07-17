@@ -1,0 +1,525 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carro</title>
+  <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
+  <style>
+    .mostrar-pago-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 12px 20px;
+      font-size: 18px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .mostrar-pago-btn:hover {
+      background-color: #218838;
+    }
+
+    .form-seccion {
+      margin-top: 20px;
+      padding: 15px 20px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-seccion h4 {
+      margin-bottom: 10px;
+      font-size: 17px;
+      color: #2c3e50;
+    }
+
+    #formulario-cargando {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    #formulario-cargando::after {
+      content: "";
+      display: inline-block;
+      margin-left: 10px;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #ccc;
+      border-top: 3px solid #28a745;
+      border-radius: 50%;
+      animation: girar 1s linear infinite;
+    }
+
+    @keyframes girar {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .carrito-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .carrito-item {
+      width: 250px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .carrito-img {
+      width: 100%;
+      height: 200px;
+      object-fit: contain;
+      /* que no se deforme */
+      margin-bottom: 12px;
+    }
+
+    .carrito-detalles {
+      text-align: center;
+    }
+
+    .carrito-detalles h4 {
+      margin: 8px 0 4px;
+      font-size: 16px;
+    }
+
+    .carrito-detalles p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .eliminar-btn {
+      margin-top: 10px;
+      padding: 6px 10px;
+      background-color: #ff5252;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .eliminar-btn:hover {
+      background-color: #e04343;
+    }
+
+    .carrito-total {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin: 30px 0 10px;
+      color: #2c3e50;
+    }
+
+    #formulario-pago {
+      max-width: 500px;
+      margin: 20px auto;
+      background-color: #f8f8f8;
+      padding: 20px 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #formulario-pago h4 {
+      margin-top: 10px;
+      margin-bottom: 8px;
+      font-size: 16px;
+      color: #34495e;
+    }
+
+    #formulario-pago label {
+      font-weight: 500;
+    }
+
+    #formulario-pago input[type="text"],
+    #formulario-pago input[type="radio"] {
+      margin: 8px 0;
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #formulario-pago input[type="radio"] {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    #formulario-pago button[type="submit"] {
+      margin-top: 15px;
+      width: 100%;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #formulario-pago button[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+    #mostrar-formulario-pago {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 18px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #mostrar-formulario-pago:hover {
+      background-color: #0069d9;
+    }
+
+    .telefono-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prefijo-telefono {
+      background-color: #eee;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    #formulario-pago select,
+    #formulario-pago input[type="email"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: #fff;
+    }
+
+    .opcion-radio {
+      margin: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #formulario-pago {
+      transition: opacity 0.3s ease;
+      opacity: 0;
+    }
+
+    #formulario-pago.mostrar {
+      opacity: 1;
+    }
+
+    .spinner-animado {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .spinner-text {
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .spinner-circulo {
+      width: 24px;
+      height: 24px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #28a745;
+      border-radius: 50%;
+      animation: girar 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes girar {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  {% include 'reciclables/header.html' %}
+
+  <h1>Carrito de compras</h1>
+
+  <div class="carrito-grid">
+    {% for item in carrito %}
+    <div class="carrito-item">
+      <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombre }}" class="carrito-img">
+      <div class="carrito-detalles">
+        <h4>{{ item.producto.nombre }}</h4>
+        <p>Talla: <strong>{{ item.talla }}</strong></p>
+        <p>Cantidad: {{ item.cantidad }}</p>
+        <p>Subtotal: ${{ item.subtotal|floatformat:0 }}</p>
+      </div>
+      <form method="POST" action="{% url 'eliminar_item' key=item.key %}">
+        {% csrf_token %}
+        <button class="eliminar-btn" type="submit">Eliminar</button>
+      </form>
+
+    </div>
+    {% empty %}
+    <p>Tu carrito está vacío.</p>
+    {% endfor %}
+  </div>
+
+  <p class="carrito-total">Total: ${{ total|floatformat:0 }}</p>
+
+  <button id="mostrar-formulario-pago" class="mostrar-pago-btn">
+    Ir a pagar
+  </button>
+
+
+  {% if carrito %}
+  <div id="formulario-pago" class="fade-in">
+    <form method="POST" action="{% url 'procesar_compra' %}" id="formulario-compra">
+      {% csrf_token %}
+
+      <h3 class="titulo-formulario">¿Cómo deseas recibir tu pedido?</h3>
+      <div class="opcion-radio">
+        <input type="radio" name="metodo_entrega" value="retiro" id="retiro">
+        <label for="retiro">Retiro en tienda</label>
+      </div>
+      <div class="opcion-radio">
+        <input type="radio" name="metodo_entrega" value="envio" id="envio">
+        <label for="envio">Envío a domicilio</label>
+      </div>
+
+      <!-- Sección Envío -->
+      <div id="envio-campos" style="display: none;">
+        <div class="form-seccion">
+          <h4>Datos personales</h4>
+          <input type="text" name="nombre" placeholder="Nombre">
+          <input type="text" name="apellido" placeholder="Apellido">
+          <input type="email" name="email" placeholder="correo@ejemplo.cl" autocomplete="email">
+          <div class="telefono-container">
+            <span class="prefijo-telefono">+569</span>
+            <input type="text" name="telefono" id="telefono_envio" maxlength="8" placeholder="XXXXXXXX">
+          </div>
+
+        </div>
+
+        <div class="form-seccion">
+          <h4>Dirección</h4>
+          <input type="text" name="direccion" placeholder="Dirección">
+          <input type="text" name="ciudad" placeholder="Ciudad">
+          <select name="region">
+            <option value="">Selecciona una región</option>
+            <option>Arica y Parinacota</option>
+            <option>Tarapacá</option>
+            <option>Antofagasta</option>
+            <option>Atacama</option>
+            <option>Coquimbo</option>
+            <option>Valparaíso</option>
+            <option>Metropolitana de Santiago</option>
+            <option>O’Higgins</option>
+            <option>Maule</option>
+            <option>Ñuble</option>
+            <option>Biobío</option>
+            <option>Araucanía</option>
+            <option>Los Ríos</option>
+            <option>Los Lagos</option>
+            <option>Aysén</option>
+            <option>Magallanes</option>
+          </select>
+        </div>
+
+        <div class="form-seccion">
+          <h4>Empresa de envío</h4>
+          <div class="opcion-radio">
+            <input type="radio" name="empresa_envio" value="Casem" id="casem">
+            <label for="casem">Casem</label>
+          </div>
+          <div class="opcion-radio">
+            <input type="radio" name="empresa_envio" value="Starken" id="starken">
+            <label for="starken">Starken</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Retiro -->
+      <div id="retiro-campos" style="display: none;">
+        <div class="form-seccion">
+          <h4>Identificación</h4>
+          <input type="text" name="nombre_retiro" placeholder="Nombre">
+          <input type="text" name="apellido_retiro" placeholder="Apellido">
+          <input type="text" name="rut" placeholder="Rut Ejemplo: 12345678-9">
+          <input type="email" name="email_retiro" placeholder="correo@ejemplo.cl" autocomplete="email">
+          <div class="telefono-container">
+            <span class="prefijo-telefono">+569</span>
+            <input type="text" name="telefono_retiro" id="telefono_retiro" maxlength="8" placeholder="XXXXXXXX">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit">Confirmar compra</button>
+      <div id="formulario-cargando" class="spinner-animado">
+        <span class="spinner-text">Procesando tu pedido...</span>
+        <div class="spinner-circulo"></div>
+      </div>
+    </form>
+  </div>
+  {% else %}
+  <p class="carrito-vacio-mensaje" style="text-align: center; font-size: 18px; color: #999;">
+    Tu carrito está vacío. Agrega productos antes de continuar.
+  </p>
+  {% endif %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const btnMostrar = document.getElementById('mostrar-formulario-pago');
+    const divFormulario = document.getElementById('formulario-pago');
+    const form = document.getElementById('formulario-compra');
+    const spinner = document.getElementById('formulario-cargando');
+
+    // Mostrar formulario al hacer clic en "Ir a pagar"
+    btnMostrar?.addEventListener('click', () => {
+      divFormulario.style.display = 'block';
+      divFormulario.classList.add('mostrar');
+      btnMostrar.style.display = 'none';
+    });
+
+    // Manejo de campos según método de entrega
+    document.querySelectorAll('input[name="metodo_entrega"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const envio = document.getElementById('envio-campos');
+        const retiro = document.getElementById('retiro-campos');
+
+        if (radio.value === 'envio') {
+          envio.style.display = 'block';
+          retiro.style.display = 'none';
+        } else if (radio.value === 'retiro') {
+          envio.style.display = 'none';
+          retiro.style.display = 'block';
+        }
+      });
+    });
+
+    // Funciones de validación
+    const validarNombreApellido = (valor) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor.trim());
+    const validarEmail = (valor) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(valor.trim());
+    const validarTelefono = (valor) => /^\d{8}$/.test(valor);
+    const validarRUT = (valor) => {
+      const limpio = valor.replace(/[^\dkK]/g, '');
+      const rutFormateado = limpio.length > 8 ? limpio.slice(0, 8) + '-' + limpio.slice(8, 9) : limpio;
+      return /^\d{7,8}-[\dkK]$/.test(rutFormateado);
+    };
+
+    // Autoformatear RUT
+    const rutInput = document.querySelector('input[name="rut"]');
+    rutInput?.addEventListener('input', function () {
+      const limpio = this.value.replace(/[^\dkK]/g, '');
+      this.value = limpio.length > 8 ? limpio.slice(0, 8) + '-' + limpio.slice(8, 9) : limpio;
+    });
+
+    // Validación al enviar
+    form?.addEventListener('submit', function (e) {
+      const metodo = form.querySelector('input[name="metodo_entrega"]:checked')?.value;
+      const errores = [];
+
+      if (!metodo) {
+        e.preventDefault();
+        alert("Selecciona un método de entrega.");
+        return;
+      }
+
+      const visible = (name) => {
+        const el = form.querySelector(`[name="${name}"]`);
+        return el && el.offsetParent !== null;
+      };
+
+      if (metodo === 'envio') {
+        const nombre = form['nombre']?.value;
+        const apellido = form['apellido']?.value;
+        const email = form['email']?.value;
+        const telefono = form['telefono']?.value;
+
+        if (!validarNombreApellido(nombre)) errores.push('nombre');
+        if (!validarNombreApellido(apellido)) errores.push('apellido');
+        if (!validarEmail(email)) errores.push('email');
+        if (!validarTelefono(telefono)) errores.push('telefono');
+
+        ['direccion', 'ciudad', 'region'].forEach(field => {
+          if (visible(field) && form[field].value.trim() === '') errores.push(field);
+        });
+
+        const empresa = form.querySelector('input[name="empresa_envio"]:checked');
+        if (!empresa) errores.push("empresa_envio");
+
+      } else if (metodo === 'retiro') {
+        const nombre = form['nombre_retiro']?.value;
+        const apellido = form['apellido_retiro']?.value;
+        const email = form['email_retiro']?.value;
+        const rut = form['rut']?.value;
+        const telefono = form['telefono_retiro']?.value;
+
+        if (!validarNombreApellido(nombre)) errores.push('nombre_retiro');
+        if (!validarNombreApellido(apellido)) errores.push('apellido_retiro');
+        if (!validarEmail(email)) errores.push('email_retiro');
+        if (!validarRUT(rut)) errores.push('rut');
+        if (!validarTelefono(telefono)) errores.push("telefono_retiro");
+      }
+
+      if (errores.length > 0) {
+        e.preventDefault();
+        alert("Errores en: " + errores.join(', ') + ". Verifica tu información.");
+        return;
+      }
+
+      // Mostrar spinner
+      spinner.style.display = 'block';
+      form.querySelector('button[type="submit"]').disabled = true;
+    });
+  });
+</script>
+
+
+
+
+  <br>
+  {% include 'reciclables/footer.html' %}
+</body>
+
+</html>
