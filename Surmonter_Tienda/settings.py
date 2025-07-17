@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     'http://146.235.244.74',
     'localhost',          # ← “localhost” basta; no incluyas esquema
     'surmontertienda.cl',
+    'http://127.0.0.1:8000',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
