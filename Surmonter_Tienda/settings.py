@@ -126,9 +126,9 @@ WSGI_APPLICATION = 'Surmonter_Tienda.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Surmonter_Tienda',
-        'USER': 'Surmonter',
-        'PASSWORD': 'Surmonter',
+        'NAME': 'surmonterdb',  # <- este nombre debe coincidir con el que creaste
+        'USER': 'surmonteruser',
+        'PASSWORD': 'S@urmonter2024!',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
