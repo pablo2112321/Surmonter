@@ -1,0 +1,16 @@
+# Evitar subir configuraciones sensibles
+.env
+*.env
+
+# Archivos temporales
+*.pyc
+__pycache__/
+
+# Archivos de base de datos y estáticos
+db.sqlite3
+staticfiles/
+media/
+
+# Entornos virtuales
+venv/
+ENV/

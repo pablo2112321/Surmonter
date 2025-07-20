@@ -1,0 +1,8 @@
+[Unit]
+Description=gunicorn socket for Surmonter_Tienda
+
+[Socket]
+ListenStream=/home/ubuntu/surmonter/Surmonter_Tienda.sock
+
+[Install]
+WantedBy=sockets.target
