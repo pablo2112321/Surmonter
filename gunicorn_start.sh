@@ -8,7 +8,7 @@ GROUP=www-data
 WORKERS=3
 BIND=unix:$DIR/$NAME.sock
 DJANGO_SETTINGS_MODULE=surmonter.settings.prod
-DJANGO_WSGI_MODULE=surmonter.wsgi
+DJANGO_WSGI_MODULE=Surmonter_Tienda.wsgi
 
 source /home/ubuntu/venv/bin/activate
 cd $DIR

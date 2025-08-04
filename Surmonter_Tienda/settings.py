@@ -10,6 +10,20 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 DEBUG = False  # En producción siempre False
 
+# Configuración del sitio
+SITE_NAME = "Surmonter Tienda"
+EMAIL_CONTACTO = "surmontertienda@gmail.com"
+
+# Configuración de seguridad adicional para producción
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+#ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
@@ -118,3 +132,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+MERCADOPAGO_ACCESS_TOKEN = MERCADOPAGO_TOKEN_PRODUCCION if MERCADOPAGO_USAR_PRODUCCION else MERCADOPAGO_TOKEN_SANDBOX
+

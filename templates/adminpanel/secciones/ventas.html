@@ -1,0 +1,42 @@
+{% extends 'paneladmin_base.html' %}
+{% block content %}
+<h2 class="mb-4">Ventas Registradas</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>RUT</th>
+            <th>Monto</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Pago ID</th>
+            <th>Ver</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for venta in ventas %}
+        <tr>
+            <td>#{{ venta.id }}</td>
+            <td>{{ venta.nombre }} {{ venta.apellido }}</td>
+            <td>{{ venta.rut }}</td>
+            <td>${{ venta.total }}</td>
+            <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+            <td>
+                {% if venta.pagado %}
+                    <span class="badge bg-success">Pagado</span>
+                {% else %}
+                    <span class="badge bg-danger">Pendiente</span>
+                {% endif %}
+            </td>
+            <td>{{ venta.payment_id }}</td>
+            <td>
+                <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-sm btn-primary">Ver Detalle</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+

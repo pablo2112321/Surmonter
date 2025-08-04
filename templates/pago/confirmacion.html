@@ -1,63 +1,75 @@
-{% extends 'base.html' %}
-
-{% block title %}Confirmación de compra{% endblock %}
-
-{% block content %}
-<div style="max-width: 800px; margin: auto; padding: 20px;">
-    <h2 style="text-align: center;">Estado de tu compra</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Confirmación de compra</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="text-center mb-4">Estado de tu compra</h2>
 
     {% if venta.pagado %}
-      <p style="color: green; font-weight: bold;">✅ Pago aprobado</p>
+      <div class="alert alert-success text-center" role="alert">
+        ✅ Pago aprobado
+      </div>
     {% else %}
-      <p style="color: red; font-weight: bold;">❌ El pago fue rechazado</p>
+      <div class="alert alert-danger text-center" role="alert">
+        ❌ El pago fue rechazado
+      </div>
     {% endif %}
-
-    <hr>
 
     <h4>Datos del cliente</h4>
-    <p><strong>Orden:</strong> #{{ venta.id }}</p>
-    <p><strong>Nombre:</strong> {{ venta.nombre }} {{ venta.apellido }}</p>
-    <p><strong>Correo:</strong> {{ venta.email }}</p>
-    <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y H:i" }}</p>
-    <p><strong>Método de entrega:</strong> {{ venta.metodo_entrega|title }}</p>
-    {% if venta.metodo_entrega == "envio" %}
-      <p><strong>Dirección:</strong> {{ venta.direccion }}, {{ venta.ciudad }}, {{ venta.region }}</p>
-      <p><strong>Empresa de envío:</strong> {{ venta.empresa_envio }}</p>
-    {% else %}
-      <p><strong>RUT:</strong> {{ venta.rut }}</p>
-    {% endif %}
-
-    <hr>
+    <table class="table table-bordered table-striped">
+      <tbody>
+        <tr><th>Orden</th><td>#{{ venta.id }}</td></tr>
+        <tr><th>Nombre</th><td>{{ venta.nombre }} {{ venta.apellido }}</td></tr>
+        <tr><th>Correo</th><td>{{ venta.email }}</td></tr>
+        <tr><th>Fecha</th><td>{{ venta.fecha|date:"d/m/Y H:i" }}</td></tr>
+        <tr><th>Método de entrega</th><td>{{ venta.metodo_entrega|title }}</td></tr>
+        {% if venta.metodo_entrega == "envio" %}
+          <tr><th>Dirección</th><td>{{ venta.direccion }}, {{ venta.ciudad }}, {{ venta.region }}</td></tr>
+          <tr><th>Empresa de envío</th><td>{{ venta.empresa_envio }}</td></tr>
+        {% endif %}
+        <tr><th>RUT</th><td>{{ venta.rut }}</td></tr>
+      </tbody>
+    </table>
 
     <h4>Productos comprados</h4>
-    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-      <thead>
-        <tr style="background-color: #f0f0f0;">
-          <th style="padding: 8px; border: 1px solid #ddd;">Imagen</th>
-          <th style="padding: 8px; border: 1px solid #ddd;">Producto</th>
-          <th style="padding: 8px; border: 1px solid #ddd;">Talla</th>
-          <th style="padding: 8px; border: 1px solid #ddd;">Cantidad</th>
-          <th style="padding: 8px; border: 1px solid #ddd;">Precio</th>
-          <th style="padding: 8px; border: 1px solid #ddd;">Subtotal</th>
+    <table class="table table-hover align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>Imagen</th>
+          <th>Producto</th>
+          <th>Talla</th>
+          <th>Cantidad</th>
+          <th>Precio</th>
+          <th>Subtotal</th>
         </tr>
       </thead>
       <tbody>
         {% for item in venta.items.all %}
           <tr>
-            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
-              <img src="{{ item.imagen_url|default:'/static/images/no-imagen.jpg' }}" alt="Producto" style="max-height: 60px;">
-            </td>
-            <td style="padding: 8px; border: 1px solid #ddd;">{{ item.producto_nombre }}</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">{{ item.talla }}</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">{{ item.cantidad }}</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">${{ item.precio_unitario|floatformat:0 }}</td>
-            <td style="padding: 8px; border: 1px solid #ddd;">${{ item.subtotal|floatformat:0 }}</td>
+            <td><img src="{{ item.imagen_url|default:'/static/images/no-imagen.jpg' }}" alt="Producto" style="max-height:60px; border-radius:6px;"></td>
+            <td>{{ item.producto_nombre }}</td>
+            <td>{{ item.talla }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>${{ item.precio_unitario|floatformat:0 }}</td>
+            <td>${{ item.subtotal|floatformat:0 }}</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
 
-    <h3 style="text-align: right; margin-top: 20px;">Total: ${{ venta.total|floatformat:0 }}</h3>
+    <h3 class="text-end fw-bold">Total: ${{ venta.total|floatformat:0 }}</h3>
+
+    <a href="{% url 'ver_carrito' %}" class="btn btn-primary d-block mx-auto mt-4" style="max-width: 220px;">
+      Volver al carrito
+    </a>
   </div>
-  <a href="{% url 'ver_carrito' %}"><button> Volver al carrito</button></a>
-{% endblock %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

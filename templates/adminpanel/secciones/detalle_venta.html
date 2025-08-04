@@ -1,0 +1,42 @@
+{% extends 'paneladmin_base.html' %}
+{% block content %}
+<h2>Detalle de Venta #{{ venta.id }}</h2>
+
+<ul>
+    <li><strong>Cliente:</strong> {{ venta.nombre }} {{ venta.apellido }}</li>
+    <li><strong>Email:</strong> {{ venta.email }}</li>
+    <li><strong>Teléfono:</strong> {{ venta.telefono }}</li>
+    <li><strong>Dirección:</strong> {{ venta.direccion }}, {{ venta.ciudad }}, {{ venta.region }}</li>
+    <li><strong>Metodo de Entrega:</strong> {{ venta.get_metodo_entrega_display }}</li>
+    <li><strong>Total:</strong> ${{ venta.total }}</li>
+    <li><strong>Estado de Pago:</strong> {{ venta.pagado|yesno:"Pagado,Pendiente" }}</li>
+    <li><strong>ID de Pago:</strong> {{ venta.payment_id }}</li>
+    <li><strong>Fecha de Pago:</strong> {{ venta.fecha_pago|date:"d/m/Y H:i" }}</li>
+</ul>
+
+<h3>Productos Comprados</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Talla</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.producto_nombre }}</td>
+            <td>{{ item.talla }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>${{ item.precio_unitario }}</td>
+            <td>${{ item.subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'panel_ventas' %}" class="btn btn-secondary">Volver</a>
+{% endblock %}
+

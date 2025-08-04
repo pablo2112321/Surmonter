@@ -1,10 +1,21 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Error en el pago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container text-center py-5">
+    <h2 class="text-danger mb-4">❌ Ha ocurrido un error</h2>
+    <p class="lead">Ocurrió un error al procesar tu pago.</p>
+    <p>Si el problema persiste, contáctanos a:</p>
+    <p><strong>surmontertienda@gmail.com</strong></p>
+    <a href="{% url 'ver_carrito' %}" class="btn btn-outline-danger mt-4">Volver al carrito</a>
+  </div>
 
-{% block title %}Error en compra{% endblock %}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
 
-{% block content %}
-  <h2 style="color: red;">❌ Ha ocurrido un error</h2>
-  <p>{{ mensaje }}</p>
-
-  <a href="{% url 'ver_carrito' %}"><button> Volver al carrito</button></a>
-{% endblock %}
