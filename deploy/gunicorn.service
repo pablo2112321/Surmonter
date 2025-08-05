@@ -5,12 +5,13 @@ After=network.target
 [Service]
 User=ubuntu
 Group=www-data
-WorkingDirectory=/home/ubuntu/surmonter
-ExecStart=/home/ubuntu/venv/bin/gunicorn \
+WorkingDirectory=/home/ubuntu/Surmonter
+ExecStart=/home/ubuntu/Surmonter/venv/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
-          --bind unix:/home/ubuntu/surmonter/Surmonter_Tienda.sock \
+          --bind unix:/run/gunicorn/surmonter.sock \
           Surmonter_Tienda.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
+
