@@ -34,7 +34,7 @@ urlpatterns = [
     path('usuario/', include('userApp.urls')),
     path('', include('mostrarApp.urls')),
     #path('', include('accesscontrol.urls')),
-    path('paneladmin/', include('adminpanelApp.urls')),
+    path('', include('ingresarApp.urls')),
     
 
 
