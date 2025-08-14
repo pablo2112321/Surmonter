@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Administrador</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: radial-gradient(ellipse at center, #0a1a3a 0%, #000814 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      width: 450px;
+      height: 450px;
+      background: rgba(0, 119, 255, 0.1);
+      border-radius: 50%;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      filter: blur(50px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .card {
+      background: rgba(16, 42, 92, 0.8);
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 89, 255, 0.4);
+      z-index: 1;
+      width: 100%;
+      max-width: 380px;
+      color: #e0f2ff;
+    }
+
+    .card-header {
+      background: transparent;
+      border-bottom: none;
+      font-weight: 600;
+      font-size: 1.5rem;
+      text-align: center;
+      letter-spacing: 1.2px;
+      user-select: none;
+    }
+
+    .form-control {
+      background: rgba(5, 25, 64, 0.7);
+      border: 1px solid rgba(100, 149, 237, 0.6);
+      color: white;
+      font-size: 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control::placeholder {
+      color: #a8c7ff;
+      opacity: 0.7;
+    }
+
+    .form-control:focus {
+      background: rgba(10, 42, 102, 0.8);
+      border-color: #3a86ff;
+      box-shadow: 0 0 8px #3a86ff;
+      color: white;
+    }
+
+    button.btn-primary {
+      background: linear-gradient(90deg, #2563eb, #3a86ff);
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 15px rgba(58, 134, 255, 0.5);
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    button.btn-primary:hover,
+    button.btn-primary:focus {
+      background: linear-gradient(90deg, #3a86ff, #2563eb);
+      box-shadow: 0 6px 20px rgba(58, 134, 255, 0.7);
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    /* Efecto partículas */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(-15px);
+        opacity: 0.7;
+      }
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation-name: float;
+      animation-timing-function: ease-in-out;
+      animation-iteration-count: infinite;
+    }
+
+    .alert-danger {
+      background-color: rgba(255, 77, 77, 0.85);
+      border: none;
+      color: white;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-4">
+        <div class="card shadow">
+          <div class="card-header">
+            Acceso Administrador
+          </div>
+          <div class="card-body">
+            <form method="POST" action="{% url 'admin_login' %}">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="username" class="form-label">Usuario</label>
+                <input id="username" type="text" name="username" class="form-control" placeholder="Ingrese su usuario" required autofocus />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input id="password" type="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required />
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            </form>
+
+            {% if messages %}
+              <div class="mt-3">
+                {% for message in messages %}
+                  <div class="alert alert-danger" role="alert">{{ message }}</div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Efecto partículas opcional
+    document.addEventListener('DOMContentLoaded', () => {
+      const colors = ['rgba(58, 134, 255, 0.6)', 'rgba(100, 149, 237, 0.5)', 'rgba(37, 99, 235, 0.4)'];
+      const particleCount = 30;
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+
+        const size = Math.random() * 5 + 1;
+        const posX = Math.random() * window.innerWidth;
+        const posY = Math.random() * window.innerHeight;
+        const delay = Math.random() * 5;
+        const duration = Math.random() * 10 + 10;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}px`;
+        particle.style.top = `${posY}px`;
+        particle.style.background = color;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+
+        document.body.appendChild(particle);
+      }
+    });
+  </script>
+</body>
+</html>
