@@ -12,7 +12,12 @@ server {
 
     location / {
         include proxy_params;
-        proxy_pass http://unix:/run/gunicorn/surmonter.sock;
+        proxy_pass http://unix:/home/ubuntu/Surmonter/Surmonter_Tienda.sock;
     }
+location / {
+    include proxy_params;
+    proxy_pass http://unix:/run/gunicorn/surmonter.sock;
+}
+
 }
 

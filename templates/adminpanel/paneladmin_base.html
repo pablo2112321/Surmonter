@@ -97,7 +97,7 @@
 <body>
 
   <div id="sidebar">
-    <h4 class="text-center py-3">Panel Admin</h4>
+    <h4 class="text-center py-3">Panel Administrador</h4>
     <a href="{% url 'panel_admin' %}" class="{% if not request.GET.accion %}active{% endif %}">Productos</a>
     <a href="{% url 'panel_admin' %}?accion=ventas" class="{% if request.GET.accion == 'ventas' %}active{% endif %}">Ventas</a>
     <a href="{% url 'panel_admin' %}?accion=agregar" class="{% if request.GET.accion == 'agregar' %}active{% endif %}">Agregar Producto</a>

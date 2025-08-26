@@ -9,8 +9,9 @@ WorkingDirectory=/home/ubuntu/Surmonter
 ExecStart=/home/ubuntu/Surmonter/venv/bin/gunicorn \
           --access-logfile - \
           --workers 3 \
-          --bind unix:/run/gunicorn/surmonter.sock \
+          --bind unix:/home/ubuntu/Surmonter/Surmonter_Tienda.sock \
           Surmonter_Tienda.wsgi:application
+
 
 [Install]
 WantedBy=multi-user.target
