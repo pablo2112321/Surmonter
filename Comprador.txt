@@ -1,0 +1,125 @@
+Comprador 
+User ID
+2549624943
+
+Usuario
+TESTUSER1042348228
+
+Contraseña
+Xmh7VjRPHa
+
+Vendedor
+User ID
+2549640489
+
+Usuario
+TESTUSER1936739535
+
+Contraseña
+drPe8pBbVr
+
+Comprador
+User ID
+2549615157
+
+Usuario
+TESTUSER263913646
+
+Contraseña
+P75vYXJp7Z
+
+Tarjeta
+	Número
+	Código de seguridad
+	Fecha de caducidad
+Mastercard
+	
+5416 7526 0258 2580
+	
+123
+	
+11/30
+Visa
+	
+4168 8188 4444 7115
+	
+123
+	
+11/30
+American Express
+	
+3757 781744 61804
+	
+1234
+	
+11/30
+Mastercard Debito
+	
+5241 0198 2664 6950
+	
+123
+	
+11/30
+Visa Debito
+	
+4023 6535 2391 4373
+123
+11/30
+
+
+Estado de pago
+	Descripción
+	Documento de identidad
+APRO
+	
+Pago aprobado
+	
+(otro) 123456789
+OTHE
+	
+Rechazado por error general
+	
+CONT
+	
+Pendiente de pago
+	
+-
+CALL
+	
+Rechazado con validación para autorizar
+	
+-
+FUND
+	
+Rechazado por importe insuficiente
+	
+-
+SECU
+	
+Rechazado por código de seguridad inválido
+	
+-
+EXPI
+	
+Rechazado debido a un problema de fecha de vencimiento
+	
+-
+FORM
+	
+Rechazado debido a un error de formulario
+	
+-
+
+Public Key
+APP_USR-07caddb6-11f7-4043-b41f-dff33a0fd431
+
+Access Token
+APP_USR-633038782792631-090817-9d6a7de8a489c7caef407e0731435511-2549624943
+
+TESTUSER1042348228
+Xmh7VjRPHa
+2549624943
+
+2549640489
+TESTUSER1936739535
+drPe8pBbVr
