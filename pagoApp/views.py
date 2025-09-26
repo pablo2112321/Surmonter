@@ -1,42 +1,45 @@
+# views.py
 import json
 import logging
 import mercadopago
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.db import transaction
 from django.views.decorators.http import require_http_methods
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from ingresarApp.models import Producto, VarianteTalla
 from .models import Venta, VentaItem
 
-# Configuración de logging
 logger = logging.getLogger(__name__)
 
-# Validación de configuración esencial
-if not hasattr(settings, 'MERCADOPAGO_ACCESS_TOKEN'):
+# Validaciones de configuración
+if not getattr(settings, "MERCADOPAGO_ACCESS_TOKEN", None):
     raise ImproperlyConfigured("MERCADOPAGO_ACCESS_TOKEN no está configurado en settings.py")
 
-# Configuración de MercadoPago
+# Inicializar SDK con el token seleccionado en settings
 sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
+
+def _mask_token(token):
+    if not token:
+        return "MISSING"
+    if len(token) <= 12:
+        return token
+    return token[:6] + "..." + token[-6:]
 
 @require_http_methods(["POST"])
 def iniciar_pago(request):
-    """
-    Vista para iniciar el proceso de pago con MercadoPago
-    Validaciones robustas y manejo de errores para producción
-    """
     carrito = request.session.get('carrito', {})
     if not carrito:
         return JsonResponse({'error': 'El carrito está vacío'}, status=400)
 
     metodo_entrega = request.POST.get('metodo_entrega')
-
     errors = {}
     data = {}
 
+    # Validaciones de formulario
     if metodo_entrega == 'envio':
         required_fields = {
             'nombre': "Nombre completo",
@@ -44,14 +47,13 @@ def iniciar_pago(request):
             'telefono': "Teléfono de contacto",
             'metodo_entrega': "Método de entrega"
         }
-        # Validar campos obligatorios para envío
         for field, name in required_fields.items():
             value = request.POST.get(field)
             if not value:
                 errors[field] = f"{name} es obligatorio"
             data[field] = value
 
-        # Validar campos adicionales para envío
+        # campos extra
         direccion = request.POST.get('direccion', '').strip()
         ciudad = request.POST.get('ciudad', '').strip()
         region = request.POST.get('region', '').strip()
@@ -74,17 +76,15 @@ def iniciar_pago(request):
             'rut': "Rut",
             'metodo_entrega': "Método de entrega"
         }
-        # Validar campos obligatorios para retiro
         for field, name in required_fields.items():
             value = request.POST.get(field)
             if not value:
                 errors[field] = f"{name} es obligatorio"
             data[field] = value
-
     else:
         errors['metodo_entrega'] = "Método de entrega inválido o no seleccionado"
 
-    # Validación básica adicional
+    # Validación emails simples
     if 'email' in data and data['email'] and '@' not in data['email']:
         errors['email'] = "Ingrese un email válido"
     if 'email_retiro' in data and data['email_retiro'] and '@' not in data['email_retiro']:
@@ -93,7 +93,7 @@ def iniciar_pago(request):
     if errors:
         return JsonResponse({'error': 'Datos incompletos', 'details': errors}, status=400)
 
-    # Calcular total
+    # Calcular total (asegurar float)
     try:
         total = sum(
             float(item['precio']) * int(item['cantidad'])
@@ -103,8 +103,10 @@ def iniciar_pago(request):
         if total <= 0:
             raise ValueError("Total inválido")
     except (ValueError, KeyError) as e:
+        logger.exception("Error calculando total del carrito")
         return JsonResponse({'error': 'Error en los datos del carrito'}, status=400)
 
+    # Persistir venta y items
     try:
         with transaction.atomic():
             if metodo_entrega == 'envio':
@@ -123,7 +125,7 @@ def iniciar_pago(request):
                     pagado=False,
                     origen='web'
                 )
-            else:  # retiro
+            else:
                 venta = Venta.objects.create(
                     nombre=data['nombre_retiro'],
                     apellido=request.POST.get('apellido_retiro', ''),
@@ -160,13 +162,13 @@ def iniciar_pago(request):
                     cantidad=item['cantidad'],
                     precio_unitario=item['precio']
                 )
-
     except ValidationError as e:
         return JsonResponse({'error': str(e)}, status=400)
-    except Exception as e:
+    except Exception:
+        logger.exception("Error creando venta")
         return JsonResponse({'error': 'Error al procesar la venta'}, status=500)
 
-    # Preparar preferencia MercadoPago
+    # Preparar preferencia y crear en MP
     try:
         payer_info = {}
         if metodo_entrega == 'envio':
@@ -174,148 +176,160 @@ def iniciar_pago(request):
                 "name": data['nombre'],
                 "surname": request.POST.get('apellido', ''),
                 "email": data['email'],
-                "phone": {
-                    "number": data['telefono']
-                },
+                "phone": {"number": data['telefono']},
                 "address": {
                     "street_name": request.POST.get('direccion', ''),
                     "city": request.POST.get('ciudad', ''),
                     "federal_unit": request.POST.get('region', '')
                 }
             }
-        else:  # retiro
+        else:
             payer_info = {
                 "name": data['nombre_retiro'],
                 "surname": request.POST.get('apellido_retiro', ''),
                 "email": data['email_retiro'],
-                "phone": {
-                    "number": data['telefono_retiro']
-                },
-                # Dirección vacía para retiro
+                "phone": {"number": data['telefono_retiro']},
                 "address": {}
             }
+
+        # Para CLP: pasar entero
+        unit_price = int(round(total))
 
         preference_data = {
             "items": [{
                 "title": f"Compra en {settings.SITE_NAME}",
                 "quantity": 1,
                 "currency_id": "CLP",
-                "unit_price": float(total)
+                "unit_price": unit_price
             }],
             "payer": payer_info,
             "external_reference": str(venta.id),
             "back_urls": {
-                "success": request.build_absolute_uri(reverse('pago_exitoso')),
-                "failure": request.build_absolute_uri(reverse('pago_fallido')),
-                "pending": request.build_absolute_uri(reverse('pago_pendiente')),
-            },
-            "auto_return": "approved",
-            "notification_url": request.build_absolute_uri(reverse('webhook_mercadopago')),
+    "success": f"{settings.SITE_URL}{reverse('pago_exitoso')}",
+    "failure": f"{settings.SITE_URL}{reverse('pago_fallido')}",
+    "pending": f"{settings.SITE_URL}{reverse('pago_pendiente')}",
+},
+"auto_return": "approved",
+"notification_url": f"{settings.SITE_URL}{reverse('webhook_mercadopago')}",
+
             "statement_descriptor": settings.SITE_NAME[:22]
         }
 
-        if settings.MERCADOPAGO_USAR_PRODUCCION:
+        # binary_mode solo en producción si así lo quieres
+        if getattr(settings, "MERCADOPAGO_USAR_PRODUCCION", False):
             preference_data["binary_mode"] = True
 
+        # Log token enmascarado y environment
+        logger.info("Creando preferencia MercadoPago - token=%s - usar_produccion=%s",
+                    _mask_token(getattr(settings, "MERCADOPAGO_ACCESS_TOKEN", None)),
+                    getattr(settings, "MERCADOPAGO_USAR_PRODUCCION", None))
+
         preference_response = sdk.preference().create(preference_data)
+        logger.debug("preference.create response: %s", json.dumps(preference_response, indent=2, default=str))
 
-        if not preference_response.get("response"):
-            raise Exception("Error en la respuesta de MercadoPago")
+        if not isinstance(preference_response, dict):
+            raise Exception("Respuesta inválida de MercadoPago")
 
-        preference = preference_response["response"]
-        init_point = preference["sandbox_init_point"] if settings.DEBUG else preference["init_point"]
+        pref = preference_response.get("response")
+        if not pref:
+            raise Exception(f"MercadoPago no devolvió 'response' -> {preference_response}")
 
+        init_point = pref.get("init_point") or pref.get("sandbox_init_point")
+        if not init_point:
+            raise Exception(f"No se encontró init_point en la preferencia: {pref}")
+
+        # Redirigir al init_point (MP decide si es sandbox según token)
         return redirect(init_point)
 
     except Exception as e:
-        venta.delete()  # revertir venta si falla creación preferencia
-        return JsonResponse({
-            "error": "Error al procesar el pago",
-            "message": str(e)
-        }, status=500)
+        logger.exception("Error creando preferencia MercadoPago")
+        try:
+            venta.delete()
+        except Exception:
+            logger.exception("No se pudo eliminar la venta tras fallo preferencia")
+        return JsonResponse({"error": "Error al procesar el pago", "message": str(e)}, status=500)
 
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def webhook_mercadopago(request):
-    """
-    Webhook para recibir notificaciones de MercadoPago
-    Implementa validaciones de seguridad para producción
-    """
-    # Verificación básica de origen (deberías implementar una más robusta)
     logger.info("📩 Webhook recibido desde MercadoPago")
-
     try:
-        data = json.loads(request.body.decode('utf-8'))
+        payload = json.loads(request.body.decode("utf-8"))
+        logger.debug("Webhook payload: %s", json.dumps(payload, indent=2))
     except json.JSONDecodeError:
         logger.warning("JSON inválido recibido en webhook")
         return JsonResponse({"error": "JSON inválido"}, status=400)
 
-    # Solo procesar notificaciones de tipo payment
-    if data.get("type") != "payment":
+    # Aceptar notifications tipo payment
+    # Nota: MercadoPago puede enviar diferentes shapes; aquí tomamos 'type' y 'data'
+    if payload.get("type") not in ("payment", "payment.updated", "payment.created"):
+        logger.info("Evento webhooks ignorado: %s", payload.get("type"))
         return JsonResponse({"message": "Evento ignorado"}, status=200)
 
-    payment_id = data.get("data", {}).get("id")
+    payment_id = None
+    # Dependiendo del webhook el id puede venir en data['id'] o data['object']['id']
+    data_field = payload.get("data", {})
+    if isinstance(data_field, dict):
+        payment_id = data_field.get("id") or (data_field.get("object") or {}).get("id")
+
     if not payment_id:
         logger.warning("ID de pago faltante en webhook")
         return JsonResponse({"error": "ID de pago faltante"}, status=400)
 
     try:
-        # Obtener información del pago desde MercadoPago
+        # Obtener información del pago desde MP para verificar estado real
         payment_response = sdk.payment().get(payment_id)
+        logger.debug("payment.get response: %s", json.dumps(payment_response, indent=2, default=str))
         payment = payment_response.get("response")
-        
         if not payment:
-            logger.error(f"Respuesta inesperada de MercadoPago: {payment_response}")
+            logger.error("Respuesta inválida de payment.get")
             return JsonResponse({"error": "Respuesta inválida de MercadoPago"}, status=400)
 
-        if payment.get("status") == "approved":
-            external_reference = payment.get("external_reference")
-            if not external_reference:
-                logger.error("Referencia externa faltante en pago aprobado")
-                return JsonResponse({"error": "Referencia externa faltante"}, status=400)
+        status = payment.get("status")
+        external_reference = payment.get("external_reference")
+        logger.info("Webhook payment_id=%s status=%s external_reference=%s", payment_id, status, external_reference)
 
+        if status == "approved" and external_reference:
             try:
                 with transaction.atomic():
                     venta = Venta.objects.select_for_update().get(id=external_reference)
-                    
-                    # Si ya estaba pagada, registrar pero no hacer nada
                     if venta.pagado:
-                        logger.info(f"Venta {venta.id} ya estaba marcada como pagada")
+                        logger.info("Venta %s ya marcada como pagada", venta.id)
                         return JsonResponse({"message": "Venta ya estaba pagada"}, status=200)
-                    
-                    # Actualizar venta
+
                     venta.pagado = True
                     venta.payment_id = str(payment_id)
                     venta.metodo_pago = payment.get("payment_type_id", "")
                     venta.fecha_pago = payment.get("date_approved")
                     venta.save()
-                    
-                    # Actualizar stock para cada item
+
+                    # Actualizar stock si corresponde
                     for item in venta.items.all():
-                        if item.talla:  # Solo si es producto con tallas
+                        if item.talla:
                             try:
                                 variante = VarianteTalla.objects.select_for_update().get(
-                                    producto=item.producto, 
+                                    producto=item.producto,
                                     talla=item.talla
                                 )
                                 variante.stock = max(variante.stock - item.cantidad, 0)
                                 variante.save()
                             except VarianteTalla.DoesNotExist:
-                                logger.warning(f"No se encontró variante para {item.producto.nombre} - Talla: {item.talla}")
+                                logger.warning("No se encontró variante: %s talla=%s", item.producto, item.talla)
 
-                    logger.info(f"Venta {venta.id} marcada como pagada correctamente")
-                    return JsonResponse({"message": "Venta marcada como pagada"}, status=200)
-                
+                logger.info("Venta %s marcada como pagada correctamente", venta.id)
+                return JsonResponse({"message": "Venta marcada como pagada"}, status=200)
             except Venta.DoesNotExist:
-                logger.error(f"Venta no encontrada: {external_reference}")
+                logger.error("Venta no encontrada: %s", external_reference)
                 return JsonResponse({"error": "Venta no encontrada"}, status=404)
-                
-    except Exception as e:
-        logger.error(f"Error en webhook: {e}", exc_info=True)
+
+        # Si no está approved simplemente respondemos 200
+        return JsonResponse({"message": "Pago no aprobado o sin referencia externa"}, status=200)
+
+    except Exception:
+        logger.exception("Error procesando webhook")
         return JsonResponse({"error": "Error interno del servidor"}, status=500)
 
-    return JsonResponse({"message": "Pago no aprobado"}, status=200)
 
 @require_http_methods(["GET"])
 def pago_exitoso(request):
@@ -330,93 +344,67 @@ def pago_exitoso(request):
             venta = Venta.objects.filter(payment_id=payment_id).first()
 
         if not venta:
-            logger.warning(f"No se encontró venta para external_reference={external_reference} o payment_id={payment_id}")
+            logger.warning("No se encontró venta para external_reference=%s payment_id=%s", external_reference, payment_id)
             return render(request, 'pago/error.html', {
                 'mensaje': 'No se encontró información del pago.',
                 'contacto': settings.EMAIL_CONTACTO
             })
 
-        # Limpiar carrito y datos del cliente en sesión
         request.session.pop('carrito', None)
         request.session.pop('datos_cliente', None)
 
-        context = {
-            'venta': venta,
-            'items': venta.items.all(),
-            'status': 'approved'
-        }
+        context = {'venta': venta, 'items': venta.items.all(), 'status': 'approved'}
         return render(request, 'pago/confirmacion.html', context)
 
-    except Exception as e:
-        logger.error(f"Error en pago_exitoso: {e}", exc_info=True)
+    except Exception:
+        logger.exception("Error en pago_exitoso")
         return render(request, 'pago/error.html', {
             'mensaje': 'Ocurrió un error al procesar tu pago exitoso',
             'contacto': settings.EMAIL_CONTACTO
         })
 
 
-
 @require_http_methods(["GET"])
 def pago_fallido(request):
-    """
-    Vista para cuando el pago falla
-    """
     payment_id = request.GET.get('payment_id')
-    context = {
-        'contacto': settings.EMAIL_CONTACTO
-    }
-    
+    context = {'contacto': settings.EMAIL_CONTACTO}
     if payment_id:
         try:
             venta = Venta.objects.get(payment_id=payment_id)
             context['venta'] = venta
         except Venta.DoesNotExist:
-            logger.warning(f"Venta no encontrada para payment_id: {payment_id}")
-
+            logger.warning("Venta no encontrada para payment_id: %s", payment_id)
     return render(request, 'pago/fallido.html', context)
+
 
 @require_http_methods(["GET"])
 def pago_pendiente(request):
-    """
-    Vista para cuando el pago está pendiente
-    """
     payment_id = request.GET.get('payment_id')
-    context = {
-        'status': 'pending',
-        'contacto': settings.EMAIL_CONTACTO
-    }
-    
+    context = {'status': 'pending', 'contacto': settings.EMAIL_CONTACTO}
     if payment_id:
         try:
             venta = Venta.objects.get(payment_id=payment_id)
             context['venta'] = venta
         except Venta.DoesNotExist:
-            logger.warning(f"Venta no encontrada para payment_id: {payment_id}")
-
+            logger.warning("Venta no encontrada para payment_id: %s", payment_id)
     return render(request, 'pago/pendiente.html', context)
+
 
 @require_http_methods(["GET"])
 def panel_ventas(request):
-    """
-    Panel administrativo para ver las ventas
-    """
     if not request.user.is_authenticated or not request.user.is_staff:
         return HttpResponseForbidden("No autorizado")
-        
     ventas = Venta.objects.prefetch_related('items').order_by('-fecha_creacion')
     return render(request, 'admin/ventas.html', {
         'ventas': ventas,
         'total_ventas': sum(v.total for v in ventas if v.pagado)
     })
 
+
 @require_http_methods(["GET"])
 def detalle_venta(request, venta_id):
-    """
-    Detalle de una venta específica
-    """
     if not request.user.is_authenticated or not request.user.is_staff:
         return HttpResponseForbidden("No autorizado")
-        
     venta = get_object_or_404(Venta.objects.prefetch_related('items'), id=venta_id)
     return render(request, 'admin/detalle_venta.html', {
         'venta': venta,

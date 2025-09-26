@@ -10,4 +10,3 @@ urlpatterns = [
     path('admin/ventas/<int:venta_id>/', views.detalle_venta, name='detalle_venta'),
     path('procesar-compra/', views.iniciar_pago, name='procesar_compra'),
 ]
-

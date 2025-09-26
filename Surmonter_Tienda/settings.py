@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
-DEBUG = False  # En producción siempre False
+DEBUG = True  # En producción siempre False
 
 # Configuración del sitio
 SITE_NAME = "Surmonter Tienda"
@@ -30,22 +30,34 @@ ALLOWED_HOSTS = [
     'surmontertienda.cl',
     'www.surmontertienda.cl',
     '3.144.5.198',
+    'https://df9b1e50631e.ngrok-free.app',
+    'df9b1e50631e.ngrok-free.app',
 ]
+
+SITE_URL = os.environ.get("SITE_URL", "http://127.0.0.1:8000")
 
 
 CSRF_TRUSTED_ORIGINS = [
     'https://surmontertienda.cl',
     'https://www.surmontertienda.cl',
     'http://3.144.5.198',
+    'https://df9b1e50631e.ngrok-free.app',
+
 ]
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-MERCADOPAGO_TOKEN_SANDBOX = os.environ.get('MP_TOKEN_SANDBOX')
-MERCADOPAGO_TOKEN_PRODUCCION = os.environ.get('MP_TOKEN_PRODUCCION')
-MERCADOPAGO_USAR_PRODUCCION = os.environ.get('MP_USAR_PRODUCCION', 'True') == 'True'
+MERCADOPAGO_TOKEN_SANDBOX = os.environ.get("MP_TOKEN_SANDBOX")
+MERCADOPAGO_TOKEN_PRODUCCION = os.environ.get("MP_TOKEN_PRODUCCION")
+MERCADOPAGO_USAR_PRODUCCION = os.environ.get("MP_USAR_PRODUCCION", "False") == "True"
+
+if MERCADOPAGO_USAR_PRODUCCION:
+    MERCADOPAGO_ACCESS_TOKEN = MERCADOPAGO_TOKEN_PRODUCCION
+else:
+    MERCADOPAGO_ACCESS_TOKEN = MERCADOPAGO_TOKEN_SANDBOX
+
 
 
 INSTALLED_APPS = [
@@ -99,16 +111,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Surmonter_Tienda.wsgi.application'
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': os.environ.get('DB_NAME'),
+#        'USER': os.environ.get('DB_USER'),
+#        'PASSWORD': os.environ.get('DB_PASSWORD'),
+#        'HOST': '127.0.0.1',
+#        'PORT': '3306',
+#    }
+#}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'NAME': 'surmonterdb',
+        'USER': 'admin',
+        'PASSWORD': 'admin123',
         'HOST': '127.0.0.1',
         'PORT': '3306',
-    }
+        }
 }
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
