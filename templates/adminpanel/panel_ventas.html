@@ -1,0 +1,744 @@
+{% extends 'adminpanel/paneladmin_base.html' %}
+{% load humanize %}
+{% block titulo %}Panel de Ventas{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-card {
+        border: none;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+        text-align: center;
+        padding: 1.5rem 1rem;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .stats-icon {
+        font-size: 2rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .stats-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        line-height: 1;
+    }
+    
+    .stats-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-amount {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .nav-tabs {
+        border-bottom: 2px solid #dee2e6;
+        margin-bottom: 1.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        border-radius: 8px 8px 0 0;
+        margin-right: 5px;
+        padding: 12px 20px;
+        font-weight: 500;
+        color: #6c757d;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link:hover {
+        border: none;
+        background-color: #f8f9fa;
+        color: #495057;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background-color: #fff;
+        border-bottom: 3px solid #007bff;
+        color: #007bff;
+        font-weight: 600;
+    }
+    
+    .table-container {
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+        padding: 15px 12px;
+    }
+    
+    .table td {
+        padding: 12px;
+        vertical-align: middle;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+    }
+    
+    .btn-view {
+        background: #6c757d;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+        color: white;
+    }
+    
+    .page-header {
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .product-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .img-placeholder {
+        width: 50px;
+        height: 50px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+    }
+    
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .stats-card {
+            padding: 1rem 0.5rem;
+        }
+        
+        .stats-number {
+            font-size: 1.5rem;
+        }
+        
+        .stats-icon {
+            font-size: 1.5rem;
+        }
+        
+        .nav-tabs .nav-link {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .table-responsive {
+            font-size: 0.85rem;
+        }
+        
+        .product-img {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .img-placeholder {
+            width: 40px;
+            height: 40px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="mb-1">Panel de Ventas</h2>
+            <p class="text-muted mb-0">Gestiona y monitorea todas las transacciones</p>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'panel_admin' %}?accion=ventas" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-list-ul me-1"></i>Vista Simple
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tarjetas de Estadísticas -->
+<div class="stats-grid">
+    <div class="stats-card" style="border-left: 4px solid #28a745;">
+        <div class="stats-icon text-success">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stats-number text-success">{{ ventas_aprobadas.count }}</div>
+        <div class="stats-label">Aprobadas</div>
+        <div class="stats-amount text-success">${{ total_aprobadas|floatformat:0|intcomma }}</div>
+    </div>
+    
+    <div class="stats-card" style="border-left: 4px solid #ffc107;">
+        <div class="stats-icon text-warning">
+            <i class="bi bi-clock-fill"></i>
+        </div>
+        <div class="stats-number text-warning">{{ ventas_pendientes.count }}</div>
+        <div class="stats-label">Pendientes</div>
+        <div class="stats-amount text-warning">${{ total_pendientes|floatformat:0|intcomma }}</div>
+    </div>
+    
+    <div class="stats-card" style="border-left: 4px solid #17a2b8;">
+        <div class="stats-icon text-info">
+            <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <div class="stats-number text-info">{{ ventas_en_proceso.count }}</div>
+        <div class="stats-label">En Proceso</div>
+        <div class="stats-amount text-info">${{ total_en_proceso|floatformat:0|intcomma }}</div>
+    </div>
+    
+    <div class="stats-card" style="border-left: 4px solid #dc3545;">
+        <div class="stats-icon text-danger">
+            <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div class="stats-number text-danger">{{ ventas_rechazadas.count }}</div>
+        <div class="stats-label">Rechazadas</div>
+        <div class="stats-amount text-danger">-</div>
+    </div>
+    
+    <div class="stats-card" style="border-left: 4px solid #6c757d;">
+        <div class="stats-icon text-secondary">
+            <i class="bi bi-dash-circle-fill"></i>
+        </div>
+        <div class="stats-number text-secondary">{{ ventas_canceladas.count }}</div>
+        <div class="stats-label">Canceladas</div>
+        <div class="stats-amount text-secondary">-</div>
+    </div>
+</div>
+
+<!-- Pestañas de Navegación -->
+<ul class="nav nav-tabs" id="ventasTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="aprobadas-tab" data-bs-toggle="tab" data-bs-target="#aprobadas" type="button" role="tab">
+            <i class="bi bi-check-circle me-1"></i>Aprobadas ({{ ventas_aprobadas.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes" type="button" role="tab">
+            <i class="bi bi-clock me-1"></i>Pendientes ({{ ventas_pendientes.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="proceso-tab" data-bs-toggle="tab" data-bs-target="#proceso" type="button" role="tab">
+            <i class="bi bi-arrow-repeat me-1"></i>En Proceso ({{ ventas_en_proceso.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="rechazadas-tab" data-bs-toggle="tab" data-bs-target="#rechazadas" type="button" role="tab">
+            <i class="bi bi-x-circle me-1"></i>Rechazadas ({{ ventas_rechazadas.count }})
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="canceladas-tab" data-bs-toggle="tab" data-bs-target="#canceladas" type="button" role="tab">
+            <i class="bi bi-dash-circle me-1"></i>Canceladas ({{ ventas_canceladas.count }})
+        </button>
+    </li>
+</ul>
+
+<!-- Contenido de las Pestañas -->
+<div class="tab-content mt-3" id="ventasTabsContent">
+    <!-- Ventas Aprobadas -->
+    <div class="tab-pane fade show active" id="aprobadas" role="tabpanel">
+        {% if ventas_aprobadas %}
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="80">ID</th>
+                                <th width="80">Imagen</th>
+                                <th>Cliente</th>
+                                <th width="150">Fecha</th>
+                                <th width="120">Total</th>
+                                <th width="150">Entrega</th>
+                                <th width="100">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in ventas_aprobadas %}
+                            <tr>
+                                <td>
+                                    <strong class="text-success">#{{ venta.id }}</strong>
+                                </td>
+                                <td>
+                                    {% with venta.items_venta.first as primer_item %}
+                                        {% if primer_item and primer_item.producto.imagen %}
+                                            <img src="{{ primer_item.producto.imagen.url }}" 
+                                                 alt="{{ primer_item.producto_nombre }}"
+                                                 class="product-img"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="img-placeholder" style="display: none;">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="img-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ venta.nombre_completo }}</div>
+                                    <small class="text-muted">{{ venta.email }}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ venta.fecha|date:"d/m/Y" }}</small>
+                                    <br>
+                                    <small>{{ venta.fecha|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">${{ venta.total|floatformat:0|intcomma }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-badge">
+                                        {{ venta.get_metodo_entrega_display }}
+                                    </span>
+                                    {% if venta.empresa_envio %}
+                                    <br>
+                                    <small class="text-muted">{{ venta.get_empresa_envio_display }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-view btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-check-circle text-success"></i>
+                <h5>No hay ventas aprobadas</h5>
+                <p class="text-muted">Todas las transacciones aprobadas aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Ventas Pendientes -->
+    <div class="tab-pane fade" id="pendientes" role="tabpanel">
+        {% if ventas_pendientes %}
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="80">ID</th>
+                                <th width="80">Imagen</th>
+                                <th>Cliente</th>
+                                <th width="150">Fecha</th>
+                                <th width="120">Total</th>
+                                <th width="150">Entrega</th>
+                                <th width="100">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in ventas_pendientes %}
+                            <tr>
+                                <td>
+                                    <strong class="text-warning">#{{ venta.id }}</strong>
+                                </td>
+                                <td>
+                                    {% with venta.items_venta.first as primer_item %}
+                                        {% if primer_item and primer_item.producto.imagen %}
+                                            <img src="{{ primer_item.producto.imagen.url }}" 
+                                                 alt="{{ primer_item.producto_nombre }}"
+                                                 class="product-img"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="img-placeholder" style="display: none;">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="img-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ venta.nombre_completo }}</div>
+                                    <small class="text-muted">{{ venta.email }}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ venta.fecha|date:"d/m/Y" }}</small>
+                                    <br>
+                                    <small>{{ venta.fecha|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-warning">${{ venta.total|floatformat:0|intcomma }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-badge">
+                                        {{ venta.get_metodo_entrega_display }}
+                                    </span>
+                                    {% if venta.empresa_envio %}
+                                    <br>
+                                    <small class="text-muted">{{ venta.get_empresa_envio_display }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-view btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-clock text-warning"></i>
+                <h5>No hay ventas pendientes</h5>
+                <p class="text-muted">Las transacciones pendientes de pago aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Ventas En Proceso -->
+    <div class="tab-pane fade" id="proceso" role="tabpanel">
+        {% if ventas_en_proceso %}
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="80">ID</th>
+                                <th width="80">Imagen</th>
+                                <th>Cliente</th>
+                                <th width="150">Fecha</th>
+                                <th width="120">Total</th>
+                                <th width="150">Entrega</th>
+                                <th width="100">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in ventas_en_proceso %}
+                            <tr>
+                                <td>
+                                    <strong class="text-info">#{{ venta.id }}</strong>
+                                </td>
+                                <td>
+                                    {% with venta.items_venta.first as primer_item %}
+                                        {% if primer_item and primer_item.producto.imagen %}
+                                            <img src="{{ primer_item.producto.imagen.url }}" 
+                                                 alt="{{ primer_item.producto_nombre }}"
+                                                 class="product-img"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="img-placeholder" style="display: none;">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="img-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ venta.nombre_completo }}</div>
+                                    <small class="text-muted">{{ venta.email }}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ venta.fecha|date:"d/m/Y" }}</small>
+                                    <br>
+                                    <small>{{ venta.fecha|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-info">${{ venta.total|floatformat:0|intcomma }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-badge">
+                                        {{ venta.get_metodo_entrega_display }}
+                                    </span>
+                                    {% if venta.empresa_envio %}
+                                    <br>
+                                    <small class="text-muted">{{ venta.get_empresa_envio_display }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-view btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-arrow-repeat text-info"></i>
+                <h5>No hay ventas en proceso</h5>
+                <p class="text-muted">Las transacciones en proceso de validación aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Ventas Rechazadas -->
+    <div class="tab-pane fade" id="rechazadas" role="tabpanel">
+        {% if ventas_rechazadas %}
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="80">ID</th>
+                                <th width="80">Imagen</th>
+                                <th>Cliente</th>
+                                <th width="150">Fecha</th>
+                                <th width="120">Total</th>
+                                <th width="150">Entrega</th>
+                                <th width="100">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in ventas_rechazadas %}
+                            <tr>
+                                <td>
+                                    <strong class="text-danger">#{{ venta.id }}</strong>
+                                </td>
+                                <td>
+                                    {% with venta.items_venta.first as primer_item %}
+                                        {% if primer_item and primer_item.producto.imagen %}
+                                            <img src="{{ primer_item.producto.imagen.url }}" 
+                                                 alt="{{ primer_item.producto_nombre }}"
+                                                 class="product-img"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="img-placeholder" style="display: none;">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="img-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ venta.nombre_completo }}</div>
+                                    <small class="text-muted">{{ venta.email }}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ venta.fecha|date:"d/m/Y" }}</small>
+                                    <br>
+                                    <small>{{ venta.fecha|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-danger">${{ venta.total|floatformat:0|intcomma }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-badge">
+                                        {{ venta.get_metodo_entrega_display }}
+                                    </span>
+                                    {% if venta.empresa_envio %}
+                                    <br>
+                                    <small class="text-muted">{{ venta.get_empresa_envio_display }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-view btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-x-circle text-danger"></i>
+                <h5>No hay ventas rechazadas</h5>
+                <p class="text-muted">Las transacciones rechazadas por el sistema aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Ventas Canceladas -->
+    <div class="tab-pane fade" id="canceladas" role="tabpanel">
+        {% if ventas_canceladas %}
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th width="80">ID</th>
+                                <th width="80">Imagen</th>
+                                <th>Cliente</th>
+                                <th width="150">Fecha</th>
+                                <th width="120">Total</th>
+                                <th width="150">Entrega</th>
+                                <th width="100">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in ventas_canceladas %}
+                            <tr>
+                                <td>
+                                    <strong class="text-secondary">#{{ venta.id }}</strong>
+                                </td>
+                                <td>
+                                    {% with venta.items_venta.first as primer_item %}
+                                        {% if primer_item and primer_item.producto.imagen %}
+                                            <img src="{{ primer_item.producto.imagen.url }}" 
+                                                 alt="{{ primer_item.producto_nombre }}"
+                                                 class="product-img"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="img-placeholder" style="display: none;">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="img-placeholder">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ venta.nombre_completo }}</div>
+                                    <small class="text-muted">{{ venta.email }}</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">{{ venta.fecha|date:"d/m/Y" }}</small>
+                                    <br>
+                                    <small>{{ venta.fecha|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-secondary">${{ venta.total|floatformat:0|intcomma }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge status-badge">
+                                        {{ venta.get_metodo_entrega_display }}
+                                    </span>
+                                    {% if venta.empresa_envio %}
+                                    <br>
+                                    <small class="text-muted">{{ venta.get_empresa_envio_display }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_venta' venta.id %}" class="btn btn-view btn-sm">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-dash-circle text-secondary"></i>
+                <h5>No hay ventas canceladas</h5>
+                <p class="text-muted">Las transacciones canceladas por el usuario aparecerán aquí.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabEl = document.querySelector('button[data-bs-toggle="tab"]');
+        if (tabEl) {
+            tabEl.addEventListener('shown.bs.tab', function (e) {
+                localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
+            });
+        }
+
+        const activeTab = localStorage.getItem('activeTab');
+        if (activeTab) {
+            const tabTrigger = document.querySelector(`[data-bs-target="${activeTab}"]`);
+            if (tabTrigger) {
+                new bootstrap.Tab(tabTrigger).show();
+            }
+        }
+    });
+</script>
+{% endblock %}

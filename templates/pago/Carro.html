@@ -95,7 +95,6 @@
       width: 100%;
       height: 200px;
       object-fit: contain;
-      /* que no se deforme */
       margin-bottom: 12px;
     }
 
@@ -265,6 +264,63 @@
         transform: rotate(360deg);
       }
     }
+
+    /* Estilos para la redirección */
+    .redireccion-container {
+      text-align: center;
+      padding: 30px;
+      background: #e8f5e8;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .spinner-redireccion {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #28a745;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Estilos para la validación de RUT */
+    .rut-valido {
+      border-color: #28a745 !important;
+      box-shadow: 0 0 5px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    .rut-invalido {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 5px rgba(220, 53, 69, 0.3) !important;
+    }
+
+    .btn-volver {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .btn-volver:hover {
+      background-color: #5a6268 !important;
+      transform: translateX(-2px);
+      transition: all 0.3s ease;
+    }
   </style>
 </head>
 
@@ -288,7 +344,6 @@
         {% csrf_token %}
         <button class="eliminar-btn" type="submit">Eliminar</button>
       </form>
-
     </div>
     {% empty %}
     <p>Tu carrito está vacío.</p>
@@ -301,216 +356,505 @@
     Ir a pagar
   </button>
 
-
   {% if carrito %}
-  <div id="formulario-pago" class="fade-in">
-    <form method="POST" action="{% url 'procesar_compra' %}" id="formulario-compra">
+  <div id="formulario-pago" class="fade-in" style="display: none;">
+    <!-- Las opciones de método se insertarán aquí automáticamente -->
+
+    <!-- FORMULARIO PARA ENVÍO A DOMICILIO -->
+    <form method="POST" id="form-envio" class="form-metodo" style="display: none;">
       {% csrf_token %}
+      <input type="hidden" name="metodo_entrega" value="envio">
 
-      <h3 class="titulo-formulario">¿Cómo deseas recibir tu pedido?</h3>
-      <div class="opcion-radio">
-        <input type="radio" name="metodo_entrega" value="retiro" id="retiro">
-        <label for="retiro">Retiro en tienda</label>
-      </div>
-      <div class="opcion-radio">
-        <input type="radio" name="metodo_entrega" value="envio" id="envio">
-        <label for="envio">Envío a domicilio</label>
-      </div>
+      <button type="button" class="btn-volver" id="btn-volver-envio">
+        ← Volver a opciones de entrega
+      </button>
+      <h3 class="titulo-formulario" style="text-align: center; margin-bottom: 20px;">Envío a domicilio</h3>
 
-      <!-- Sección Envío -->
-      <div id="envio-campos" style="display: none;">
-        <div class="form-seccion">
-          <h4>Datos personales</h4>
-          <input type="text" name="nombre" placeholder="Nombre">
-          <input type="text" name="apellido" placeholder="Apellido">
-          <input type="email" name="email" placeholder="correo@ejemplo.cl" autocomplete="email">
-          <div class="telefono-container">
-            <span class="prefijo-telefono">+569</span>
-            <input type="text" name="telefono" id="telefono_envio" maxlength="8" placeholder="XXXXXXXX">
-          </div>
-
-        </div>
-
-        <div class="form-seccion">
-          <h4>Dirección</h4>
-          <input type="text" name="direccion" placeholder="Dirección">
-          <input type="text" name="ciudad" placeholder="Ciudad">
-          <select name="region">
-            <option value="">Selecciona una región</option>
-            <option>Arica y Parinacota</option>
-            <option>Tarapacá</option>
-            <option>Antofagasta</option>
-            <option>Atacama</option>
-            <option>Coquimbo</option>
-            <option>Valparaíso</option>
-            <option>Metropolitana de Santiago</option>
-            <option>O’Higgins</option>
-            <option>Maule</option>
-            <option>Ñuble</option>
-            <option>Biobío</option>
-            <option>Araucanía</option>
-            <option>Los Ríos</option>
-            <option>Los Lagos</option>
-            <option>Aysén</option>
-            <option>Magallanes</option>
-          </select>
-        </div>
-
-        <div class="form-seccion">
-          <h4>Empresa de envío</h4>
-          <div class="opcion-radio">
-            <input type="radio" name="empresa_envio" value="Casem" id="casem">
-            <label for="casem">Cacem Express</label>
-          </div>
-          <div class="opcion-radio">
-            <input type="radio" name="empresa_envio" value="Starken" id="starken">
-            <label for="starken">Starken</label>
-          </div>
+      <div class="form-seccion">
+        <h4>Datos personales</h4>
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="apellido" placeholder="Apellido" required>
+        <input type="email" name="email" placeholder="correo@ejemplo.cl" autocomplete="email" required>
+        <!-- ✅ CORREGIDO: Cambiado a formatearRUT -->
+        <input type="text" name="rut_envio" placeholder="RUT Ejemplo: 12345678-9" required maxlength="10"
+          oninput="formatearRUT(this)">
+        <div class="telefono-container">
+          <span class="prefijo-telefono">+569</span>
+          <input type="text" name="telefono" id="telefono_envio" maxlength="8" placeholder="XXXXXXXX" required>
         </div>
       </div>
 
-      <!-- Sección Retiro -->
-      <div id="retiro-campos" style="display: none;">
-        <div class="form-seccion">
-          <h4>Identificación</h4>
-          <input type="text" name="nombre_retiro" placeholder="Nombre">
-          <input type="text" name="apellido_retiro" placeholder="Apellido">
-          <input type="text" name="rut" placeholder="Rut Ejemplo: 12345678-9">
-          <input type="email" name="email_retiro" placeholder="correo@ejemplo.cl" autocomplete="email">
-          <div class="telefono-container">
-            <span class="prefijo-telefono">+569</span>
-            <input type="text" name="telefono_retiro" id="telefono_retiro" maxlength="8" placeholder="XXXXXXXX">
-          </div>
+      <div class="form-seccion">
+        <h4>Dirección</h4>
+        <input type="text" name="direccion" placeholder="Dirección" required>
+        <input type="text" name="ciudad" placeholder="Ciudad" required>
+        <select name="region" required>
+          <option value="">Selecciona una región</option>
+          <option>Arica y Parinacota</option>
+          <option>Tarapacá</option>
+          <option>Antofagasta</option>
+          <option>Atacama</option>
+          <option>Coquimbo</option>
+          <option>Valparaíso</option>
+          <option>Metropolitana de Santiago</option>
+          <option>O'Higgins</option>
+          <option>Maule</option>
+          <option>Ñuble</option>
+          <option>Biobío</option>
+          <option>Araucanía</option>
+          <option>Los Ríos</option>
+          <option>Los Lagos</option>
+          <option>Aysén</option>
+          <option>Magallanes</option>
+        </select>
+      </div>
+
+      <div class="form-seccion">
+        <h4 style="color: #007bff;">Modalidad de envío</h4>
+        <div class="opcion-radio">
+          <input type="radio" name="empresa_envio" value="local" id="envio_local" required>
+          <label for="envio_local"><b>Envío local (dentro de Valdivia)</b> - $1500</label>
+        </div>
+        <div class="opcion-radio">
+          <input type="radio" name="empresa_envio" value="starken" id="envio_starken">
+          <label for="envio_starken"><b>Starken - Por pagar</b></label>
+        </div>
+        <div class="opcion-radio">
+          <input type="radio" name="empresa_envio" value="aboraico" id="envio_aboraico">
+          <label for="envio_aboraico"><b>Transportes Aboraico - Por pagar</b></label>
+        </div>
+        <div class="opcion-radio">
+          <input type="radio" name="empresa_envio" value="cacem" id="envio_cacem">
+          <label for="envio_cacem"><b>Cacem Express - Por pagar</b></label>
         </div>
       </div>
 
-      <button type="submit">Confirmar compra</button>
-      <div id="formulario-cargando" class="spinner-animado">
-        <span class="spinner-text">Procesando tu pedido...</span>
-        <div class="spinner-circulo"></div>
-      </div>
+      <button type="submit">Continuar al pago</button>
     </form>
+
+    <!-- FORMULARIO PARA RETIRO EN TIENDA -->
+    <form method="POST" id="form-retiro" class="form-metodo" style="display: none;">
+      {% csrf_token %}
+      <input type="hidden" name="metodo_entrega" value="retiro">
+
+      <button type="button" class="btn-volver" id="btn-volver-retiro">
+        ← Volver a opciones de entrega
+      </button>
+      <h3 class="titulo-formulario" style="text-align: center; margin-bottom: 20px;">Retiro en tienda</h3>
+
+      <div class="form-seccion">
+        <h4>Identificación</h4>
+        <input type="text" name="nombre_retiro" placeholder="Nombre" required>
+        <input type="text" name="apellido_retiro" placeholder="Apellido" required>
+        <!-- ✅ CORREGIDO: Cambiado a formatearRUT -->
+        <input type="text" name="rut" placeholder="RUT Ejemplo: 12345678-9" required maxlength="10"
+          oninput="formatearRUT(this)">
+        <input type="email" name="email_retiro" placeholder="correo@ejemplo.cl" autocomplete="email" required>
+        <div class="telefono-container">
+          <span class="prefijo-telefono">+569</span>
+          <input type="text" name="telefono_retiro" id="telefono_retiro" maxlength="8" placeholder="XXXXXXXX" required>
+        </div>
+      </div>
+
+      <button type="submit">Continuar al pago</button>
+    </form>
+
+    <!-- FORMULARIO PARA ENVÍO A SUCURSAL -->
+    <form method="POST" id="form-sucursal" class="form-metodo" style="display: none;">
+      {% csrf_token %}
+      <input type="hidden" name="metodo_entrega" value="sucursal">
+
+      <button type="button" class="btn-volver" id="btn-volver-sucursal">
+        ← Volver a opciones de entrega
+      </button>
+      <h3 class="titulo-formulario" style="text-align: center; margin-bottom: 20px;">Envío a sucursal</h3>
+
+      <div class="form-seccion">
+        <h4>Datos personales</h4>
+        <input type="text" name="nombre_sucursal" placeholder="Nombre" required>
+        <input type="text" name="apellido_sucursal" placeholder="Apellido" required>
+        <!-- ✅ CORREGIDO: Cambiado a formatearRUT -->
+        <input type="text" name="rut_sucursal" placeholder="RUT Ejemplo: 12345678-9" required maxlength="10"
+          oninput="formatearRUT(this)">
+        <input type="email" name="email_sucursal" placeholder="correo@ejemplo.cl" autocomplete="email" required>
+        <div class="telefono-container">
+          <span class="prefijo-telefono">+569</span>
+          <input type="text" name="telefono_sucursal" maxlength="8" placeholder="XXXXXXXX" required>
+        </div>
+      </div>
+
+      <div class="form-seccion">
+        <h4>Dirección sucursal</h4>
+        <input type="text" name="direccion_sucursal" placeholder="Dirección sucursal" required>
+        <input type="text" name="ciudad_sucursal" placeholder="Ciudad" required>
+        <select name="region_sucursal" required>
+          <option value="">Selecciona una región</option>
+          <option>Arica y Parinacota</option>
+          <option>Tarapacá</option>
+          <option>Antofagasta</option>
+          <option>Atacama</option>
+          <option>Coquimbo</option>
+          <option>Valparaíso</option>
+          <option>Metropolitana de Santiago</option>
+          <option>O'Higgins</option>
+          <option>Maule</option>
+          <option>Ñuble</option>
+          <option>Biobío</option>
+          <option>Araucanía</option>
+          <option>Los Ríos</option>
+          <option>Los Lagos</option>
+          <option>Aysén</option>
+          <option>Magallanes</option>
+        </select>
+      </div>
+
+      <div class="form-seccion">
+        <h4 style="color:#007bff;">Empresa de envío</h4>
+        <div class="opcion-radio">
+          <input type="radio" name="empresa_envio_sucursal" value="starken" id="sucursal_starken" required>
+          <label for="sucursal_starken"><b>Starken</b></label>
+        </div>
+        <div class="opcion-radio">
+          <input type="radio" name="empresa_envio_sucursal" value="cacem" id="sucursal_cacem">
+          <label for="sucursal_cacem"><b>Cacem Express</b></label>
+        </div>
+      </div>
+
+      <button type="submit">Continuar al pago</button>
+    </form>
+
+    <!-- SPINNER Y CONTENEDOR MERCADOPAGO -->
+    <div id="formulario-cargando" class="spinner-animado" style="display: none;">
+      <span class="spinner-text">Procesando tu pedido...</span>
+      <div class="spinner-circulo"></div>
+    </div>
+
+    <!-- CONTENEDOR PARA LA REDIRECCIÓN -->
+    <div id="wallet_container" style="display: none;"></div>
   </div>
-  {% else %}
-  <p class="carrito-vacio-mensaje" style="text-align: center; font-size: 18px; color: #999;">
-    Tu carrito está vacío. Agrega productos antes de continuar.
-  </p>
   {% endif %}
-
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const btnMostrar = document.getElementById('mostrar-formulario-pago');
-    const divFormulario = document.getElementById('formulario-pago');
-    const form = document.getElementById('formulario-compra');
-    const spinner = document.getElementById('formulario-cargando');
-
-    // Mostrar formulario al hacer clic en "Ir a pagar"
-    btnMostrar?.addEventListener('click', () => {
-      divFormulario.style.display = 'block';
-      divFormulario.classList.add('mostrar');
-      btnMostrar.style.display = 'none';
-    });
-
-    // Manejo de campos según método de entrega
-    document.querySelectorAll('input[name="metodo_entrega"]').forEach(radio => {
-      radio.addEventListener('change', () => {
-        const envio = document.getElementById('envio-campos');
-        const retiro = document.getElementById('retiro-campos');
-
-        if (radio.value === 'envio') {
-          envio.style.display = 'block';
-          retiro.style.display = 'none';
-        } else if (radio.value === 'retiro') {
-          envio.style.display = 'none';
-          retiro.style.display = 'block';
-        }
-      });
-    });
-
-    // Funciones de validación
-    const validarNombreApellido = (valor) => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor.trim());
-    const validarEmail = (valor) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(valor.trim());
-    const validarTelefono = (valor) => /^\d{8}$/.test(valor);
-    const validarRUT = (valor) => {
-      const limpio = valor.replace(/[^\dkK]/g, '');
-      const rutFormateado = limpio.length > 8 ? limpio.slice(0, 8) + '-' + limpio.slice(8, 9) : limpio;
-      return /^\d{7,8}-[\dkK]$/.test(rutFormateado);
-    };
-
-    // Autoformatear RUT
-    const rutInput = document.querySelector('input[name="rut"]');
-    rutInput?.addEventListener('input', function () {
-      const limpio = this.value.replace(/[^\dkK]/g, '');
-      this.value = limpio.length > 8 ? limpio.slice(0, 8) + '-' + limpio.slice(8, 9) : limpio;
-    });
-
-    // Validación al enviar
-    form?.addEventListener('submit', function (e) {
-      const metodo = form.querySelector('input[name="metodo_entrega"]:checked')?.value;
-      const errores = [];
-
-      if (!metodo) {
-        e.preventDefault();
-        alert("Selecciona un método de entrega.");
-        return;
-      }
-
-      const visible = (name) => {
-        const el = form.querySelector(`[name="${name}"]`);
-        return el && el.offsetParent !== null;
-      };
-
-      if (metodo === 'envio') {
-        const nombre = form['nombre']?.value;
-        const apellido = form['apellido']?.value;
-        const email = form['email']?.value;
-        const telefono = form['telefono']?.value;
-
-        if (!validarNombreApellido(nombre)) errores.push('nombre');
-        if (!validarNombreApellido(apellido)) errores.push('apellido');
-        if (!validarEmail(email)) errores.push('email');
-        if (!validarTelefono(telefono)) errores.push('telefono');
-
-        ['direccion', 'ciudad', 'region'].forEach(field => {
-          if (visible(field) && form[field].value.trim() === '') errores.push(field);
-        });
-
-        const empresa = form.querySelector('input[name="empresa_envio"]:checked');
-        if (!empresa) errores.push("empresa_envio");
-
-      } else if (metodo === 'retiro') {
-        const nombre = form['nombre_retiro']?.value;
-        const apellido = form['apellido_retiro']?.value;
-        const email = form['email_retiro']?.value;
-        const rut = form['rut']?.value;
-        const telefono = form['telefono_retiro']?.value;
-
-        if (!validarNombreApellido(nombre)) errores.push('nombre_retiro');
-        if (!validarNombreApellido(apellido)) errores.push('apellido_retiro');
-        if (!validarEmail(email)) errores.push('email_retiro');
-        if (!validarRUT(rut)) errores.push('rut');
-        if (!validarTelefono(telefono)) errores.push("telefono_retiro");
-      }
-
-      if (errores.length > 0) {
-        e.preventDefault();
-        alert("Errores en: " + errores.join(', ') + ". Verifica tu información.");
-        return;
-      }
-
-      // Mostrar spinner
-      spinner.style.display = 'block';
-      form.querySelector('button[type="submit"]').disabled = true;
-    });
-  });
-</script>
-
-
-
 
   <br>
   {% include 'reciclables/footer.html' %}
+
+  <script>
+    // ✅ FUNCIÓN MEJORADA PARA EL GUÍÓN AUTOMÁTICO
+    function formatearRUT(input) {
+      console.log("🔄 formatearRUT ejecutándose. Valor actual:", input.value);
+
+      // Solo permitir números y K, convertir a mayúsculas
+      let valor = input.value.replace(/[^0-9kK]/gi, '').toUpperCase();
+      console.log("🔧 Valor limpio:", valor);
+
+      // Si tiene exactamente 8 dígitos, agregar guión automáticamente
+      if (valor.length === 8) {
+        input.value = valor + '-';
+        console.log("✅ Guión agregado automáticamente. Nuevo valor:", input.value);
+      } else if (valor.length > 8) {
+        // Si ya tiene más de 8, formatear con guión
+        input.value = valor.slice(0, 8) + '-' + valor.slice(8, 9);
+        console.log("📝 Valor formateado:", input.value);
+      } else {
+        input.value = valor;
+        console.log("📏 Valor sin cambios:", input.value);
+      }
+
+      // Limitar a 10 caracteres máximo
+      if (input.value.length > 10) {
+        input.value = input.value.slice(0, 10);
+        console.log("✂️ Recortado a 10 caracteres:", input.value);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnMostrar = document.getElementById('mostrar-formulario-pago');
+      const divFormulario = document.getElementById('formulario-pago');
+      const spinner = document.getElementById('formulario-cargando');
+      const walletContainer = document.getElementById('wallet_container');
+
+      // Formularios individuales
+      const formEnvio = document.getElementById('form-envio');
+      const formRetiro = document.getElementById('form-retiro');
+      const formSucursal = document.getElementById('form-sucursal');
+
+      // ✅ ASIGNAR EVENT LISTENERS A LOS BOTONES VOLVER
+      document.getElementById('btn-volver-envio')?.addEventListener('click', volverAtras);
+      document.getElementById('btn-volver-retiro')?.addEventListener('click', volverAtras);
+      document.getElementById('btn-volver-sucursal')?.addEventListener('click', volverAtras);
+
+      // ✅ CORREGIDO: Mostrar formulario al hacer clic en "Ir a pagar"
+      btnMostrar?.addEventListener('click', () => {
+        divFormulario.style.display = 'block';
+        divFormulario.classList.add('mostrar');
+        btnMostrar.style.display = 'none';
+
+        // ✅ MOSTRAR DIRECTAMENTE LAS OPCIONES DE MÉTODO DE ENTREGA
+        mostrarOpcionesEntrega();
+      });
+
+      // ✅ FUNCIÓN PARA MOSTRAR OPCIONES DE ENTREGA
+      function mostrarOpcionesEntrega() {
+        // Limpiar contenido previo
+        const opcionesPrevias = divFormulario.querySelector('.opciones-entrega');
+        if (opcionesPrevias) {
+          opcionesPrevias.remove();
+        }
+
+        const opcionesHTML = `
+                <div class="opciones-entrega" style="text-align: center; margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <h3 style="margin-bottom: 20px; color: #2c3e50;">¿Cómo deseas recibir tu pedido?</h3>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0;">
+                        <button type="button" class="btn-metodo" data-metodo="envio" style="
+                            padding: 15px 25px; 
+                            background-color: #007bff; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 8px; 
+                            cursor: pointer; 
+                            font-size: 16px; 
+                            transition: all 0.3s ease;
+                            min-width: 200px;
+                        ">
+                            🚚 Envío a domicilio
+                        </button>
+                        <button type="button" class="btn-metodo" data-metodo="retiro" style="
+                            padding: 15px 25px; 
+                            background-color: #28a745; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 8px; 
+                            cursor: pointer; 
+                            font-size: 16px; 
+                            transition: all 0.3s ease;
+                            min-width: 200px;
+                        ">
+                            🏪 Retiro en tienda
+                        </button>
+                        <button type="button" class="btn-metodo" data-metodo="sucursal" style="
+                            padding: 15px 25px; 
+                            background-color: #6f42c1; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 8px; 
+                            cursor: pointer; 
+                            font-size: 16px; 
+                            transition: all 0.3s ease;
+                            min-width: 200px;
+                        ">
+                            📦 Envío a sucursal
+                        </button>
+                    </div>
+                    <p style="color: #666; font-size: 14px; margin-top: 15px;">
+                        Selecciona una opción para continuar con tu compra
+                    </p>
+                </div>
+            `;
+
+        // Insertar al inicio del formulario
+        divFormulario.insertAdjacentHTML('afterbegin', opcionesHTML);
+
+        // ✅ EVENT LISTENERS PARA LOS BOTONES DE MÉTODO
+        document.querySelectorAll('.btn-metodo').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const metodo = e.target.dataset.metodo;
+            console.log("Método seleccionado:", metodo);
+            mostrarFormularioMetodo(metodo);
+          });
+        });
+      }
+
+      // ✅ FUNCIÓN PARA MOSTRAR FORMULARIO ESPECÍFICO
+      function mostrarFormularioMetodo(metodo) {
+        console.log("Mostrando formulario para:", metodo);
+
+        // Ocultar todos los formularios primero
+        if (formEnvio) formEnvio.style.display = 'none';
+        if (formRetiro) formRetiro.style.display = 'none';
+        if (formSucursal) formSucursal.style.display = 'none';
+
+        // Ocultar opciones de método
+        const opcionesDiv = document.querySelector('.opciones-entrega');
+        if (opcionesDiv) {
+          opcionesDiv.style.display = 'none';
+        }
+
+        // Mostrar el formulario correspondiente
+        if (metodo === 'envio' && formEnvio) {
+          formEnvio.style.display = 'block';
+          console.log("Formulario envío mostrado");
+        } else if (metodo === 'retiro' && formRetiro) {
+          formRetiro.style.display = 'block';
+          console.log("Formulario retiro mostrado");
+        } else if (metodo === 'sucursal' && formSucursal) {
+          formSucursal.style.display = 'block';
+          console.log("Formulario sucursal mostrado");
+        } else {
+          console.error("Formulario no encontrado para método:", metodo);
+        }
+      }
+
+      // ✅ FUNCIÓN PARA VOLVER ATRÁS
+      function volverAtras() {
+        const formEnvio = document.getElementById('form-envio');
+        const formRetiro = document.getElementById('form-retiro');
+        const formSucursal = document.getElementById('form-sucursal');
+        const opcionesDiv = document.querySelector('.opciones-entrega');
+        const walletContainer = document.getElementById('wallet_container');
+
+        // Ocultar todo
+        if (formEnvio) formEnvio.style.display = 'none';
+        if (formRetiro) formRetiro.style.display = 'none';
+        if (formSucursal) formSucursal.style.display = 'none';
+        if (walletContainer) walletContainer.style.display = 'none';
+
+        // Mostrar opciones de método de entrega
+        if (opcionesDiv) {
+          opcionesDiv.style.display = 'block';
+        } else {
+          mostrarOpcionesEntrega();
+        }
+      }
+
+      // ✅ FUNCIÓN MEJORADA PARA ENVIAR FORMULARIOS
+      function manejarEnvioFormulario(form) {
+        return async function (e) {
+          e.preventDefault();
+
+          console.log("=== INICIANDO PROCESO DE PAGO ===");
+
+          // Mostrar spinner
+          spinner.style.display = 'block';
+          const submitBtn = form.querySelector('button[type="submit"]');
+          const btnOriginalText = submitBtn.textContent;
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Procesando...';
+
+          try {
+            // ✅ ENVIAR DATOS AL BACKEND PARA CREAR PREFERENCIA
+            const formData = new FormData(form);
+
+            console.log("Enviando datos al servidor...");
+            const response = await fetch("{% url 'iniciar_pago' %}", {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Accept': 'application/json'  // ✅ Asegurar que esperamos JSON
+              },
+              body: formData
+            });
+
+            console.log("Respuesta recibida. Status:", response.status);
+
+            // ✅ VERIFICAR SI LA RESPUESTA ES JSON VÁLIDO
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              const textResponse = await response.text();
+              console.error("Respuesta no es JSON:", textResponse.substring(0, 200));
+              throw new Error('El servidor respondió con un error. Por favor intenta nuevamente.');
+            }
+
+            const data = await response.json();
+            console.log("Respuesta del servidor (JSON):", data);
+
+            if (!response.ok) {
+              throw new Error(data.error || data.message || `Error del servidor: ${response.status}`);
+            }
+
+            if (!data.preference || !data.preference.id) {
+              throw new Error('No se recibió la preferencia de pago de MercadoPago');
+            }
+
+            // ✅ OPCIÓN 1: REDIRECCIÓN AUTOMÁTICA A MERCADOPAGO
+            console.log("✅ Preferencia creada exitosamente!");
+            console.log("Redirigiendo a MercadoPago...");
+            console.log("Init Point:", data.preference.init_point);
+
+            // Mostrar mensaje de redirección
+            walletContainer.innerHTML = `
+                <div class="redireccion-container">
+                    <h3 style="color: #28a745;">✅ ¡Redirigiendo a MercadoPago!</h3>
+                    <p>Tu pedido ha sido procesado correctamente.</p>
+                    <p>Serás redirigido automáticamente a MercadoPago para completar el pago.</p>
+                    <div style="margin: 20px 0;">
+                        <div class="spinner-redireccion"></div>
+                    </div>
+                    <p style="font-size: 14px; color: #666;">
+                        Si la redirección no funciona en 5 segundos, 
+                        <a href="${data.preference.init_point}" style="color: #007bff; text-decoration: underline;">
+                            haz clic aquí
+                        </a>
+                    </p>
+                </div>
+            `;
+            walletContainer.style.display = 'block';
+
+            // Redirigir después de 2 segundos para que el usuario vea el mensaje
+            setTimeout(() => {
+              window.location.href = data.preference.init_point;
+            }, 2000);
+
+          } catch (error) {
+            console.error('=== ERROR COMPLETO ===');
+            console.error('Nombre:', error.name);
+            console.error('Mensaje:', error.message);
+            console.error('Stack:', error.stack);
+
+            // ✅ INTENTAR OBTENER LA RESPUESTA EN TEXTO PLANO
+            if (response) {
+              try {
+                const textResponse = await response.text();
+                console.error('Respuesta del servidor (texto):', textResponse.substring(0, 500));
+              } catch (textError) {
+                console.error('No se pudo obtener respuesta como texto:', textError);
+              }
+            }
+
+            errorMessage += 'Por favor intenta nuevamente o contacta al soporte.';
+
+            alert(errorMessage);
+
+            // Restaurar interfaz
+            spinner.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.textContent = btnOriginalText;
+          }
+        };
+      }
+
+      // ✅ ASIGNAR MANEJADORES A TODOS LOS FORMULARIOS
+      if (formEnvio) {
+        formEnvio.addEventListener('submit', manejarEnvioFormulario(formEnvio));
+        console.log("Manejador asignado a formulario envío");
+      }
+      if (formRetiro) {
+        formRetiro.addEventListener('submit', manejarEnvioFormulario(formRetiro));
+        console.log("Manejador asignado a formulario retiro");
+      }
+      if (formSucursal) {
+        formSucursal.addEventListener('submit', manejarEnvioFormulario(formSucursal));
+        console.log("Manejador asignado a formulario sucursal");
+      }
+    });
+  </script>
+
 </body>
 
 </html>
+
+
+<script>
+  // ✅ DEBUG DETALLADO TEMPORAL
+  console.log("URL de pago:", "{% url 'iniciar_pago' %}");
+  console.log("Datos del formulario:");
+  for (let [key, value] of formData.entries()) {
+    console.log(`  ${key}: ${value}`);
+  }
+  console.log("=== DEBUG FRONTEND ===");
+  console.log("URL de pago:", "{% url 'iniciar_pago' %}");
+  console.log("CSRF Token presente:", '{{ csrf_token }}' ? 'Sí' : 'No');
+  // Verificar datos del formulario
+  console.log("Datos del formulario:");
+  for (let [key, value] of formData.entries()) {
+    console.log(`  ${key}: ${value}`);
+  }
+</script>

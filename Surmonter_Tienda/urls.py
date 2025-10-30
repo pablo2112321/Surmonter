@@ -35,6 +35,7 @@ urlpatterns = [
     path('', include('mostrarApp.urls')),
     #path('', include('accesscontrol.urls')),
     path('', include('ingresarApp.urls')),
+    path('categorias/', include('categoriasApp.urls')),
     
 
 

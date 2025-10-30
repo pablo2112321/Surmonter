@@ -1,204 +1,519 @@
 {% load static %}
-<style>
-  .cart-counter {
-    background-color: red;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    border-radius: 50%;
-    padding: 3px 7px;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-  }
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .cart-counter {
+            background-color: red;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 3px 7px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
 
-  .cart {
-    position: relative;
-  }
+        .cart {
+            position: relative;
+        }
 
-  .search-bar {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    max-width: 450px;
-    margin: 0 auto;
-    padding: 8px 12px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 101;
-  }
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 101;
+        }
 
-  .search-bar input {
-    flex: 1;
-    padding: 8px 12px;
-    border: none;
-    outline: none;
-    font-size: 14px;
-  }
+        .search-bar input {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
 
-  .search-bar button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-left: 10px;
-  }
+        .search-bar button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 10px;
+        }
 
-  .search-bar button img {
-    width: 20px;
-    height: 20px;
-  }
+        .search-bar button img {
+            width: 20px;
+            height: 20px;
+        }
 
-  #results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 8px 0;
-    margin-top: 6px;
-    list-style: none;
-    z-index: 100;
-    max-height: 320px;
-    overflow-y: auto;
-    display: none;
-  }
+        #results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 8px 0;
+            margin-top: 6px;
+            list-style: none;
+            z-index: 100;
+            max-height: 320px;
+            overflow-y: auto;
+            display: none;
+        }
 
-  #results li {
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: background 0.2s ease;
-  }
+        #results li {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s ease;
+        }
 
-  #results li:hover {
-    background-color: #f3f3f3;
-  }
+        #results li:hover {
+            background-color: #f3f3f3;
+        }
 
-  #results li img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 6px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  }
+        #results li img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
 
-  #results li a {
-    text-decoration: none;
-    color: #333;
-    font-size: 15px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-  }
-</style>
+        #results li a {
+            text-decoration: none;
+            color: #333;
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
 
-<header>
-  <div class="logo">
-    <a href="{% url 'Inicio' %}">
-      <img src="{% static 'img/Logo.png' %}" alt="Logo Surmonter">
-    </a>
-  </div>
+        /* ESTILOS ORIGINALES MEJORADOS */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5%;
+            background: #fff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1000;
+        }
 
-  <div class="search-bar">
-    <input type="text" id="search" placeholder="Busca en toda la tienda...">
-    <ul id="results"></ul>
-    <button type="submit">
-      <img src="{% static 'img/Buscar.jpg' %}" alt="Buscar" />
-    </button>
-  </div>
+        .logo img {
+            height: 45px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
 
-  <div class="container">
-    <!-- Carrito -->
-    <div class="cart">
-      <a href="{% url 'ver_carrito' %}">
-        <img src="{% static 'img/shopping-cart.png' %}" alt="Carrito de compras">
-        <span id="contador-carrito"
-              class="cart-counter"
-              {% if not carrito_total_items %}style="display:none;"{% endif %}>
-          {{ carrito_total_items }}
-        </span>
-      </a>
-    </div>
+        .logo:hover img {
+            transform: scale(1.05);
+        }
 
-    <!-- Usuario (comentado) 
-    {# 
-    <div class="user">
-      <a href="{% url 'usuario' %}">
-        <img src="{% static 'img/user.png' %}" alt="user">
-      </a>
-    </div>
-    #}
-  </div>
-  -->
-</header>
+        .container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-<nav>
-  <ul class="nav-menu">
-    {% for categoria in menu_categorias %}
-    <li class="dropdown">
-      <button class="dropdown-btn">{{ categoria.nombre }}</button>
-      {% if categoria.subcategorias.exists %}
-      <ul class="dropdown-content">
-        {% for sub in categoria.subcategorias.all %}
-        <li>
-          <a href="{% url 'mostrar_categoria' sub.nombre %}">{{ sub.nombre }}</a>
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <ul class="dropdown-content">
-        <li>
-          <a href="{% url 'mostrar_categoria' categoria.nombre %}">Ver productos</a>
-        </li>
-      </ul>
-      {% endif %}
-    </li>
-    {% endfor %}
-  </ul>
-</nav>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const input = document.getElementById("search");
-    const results = document.getElementById("results");
+        /* NAV MEJORADO CON COLORES ORIGINALES */
+        nav {
+            background: linear-gradient(135deg, #2199DB, #2199DB);
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-    input.addEventListener("input", () => {
-      const query = input.value.trim();
-      results.innerHTML = "";
+        .nav-menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 0;
+            justify-content: center;
+        }
 
-      if (query.length < 2) {
-        results.style.display = "none";
-        return;
-      }
+        .dropdown {
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-      fetch(`/buscar/?q=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.length === 0) {
-            results.innerHTML = "<li>No se encontraron productos.</li>";
-            results.style.display = "block";
-            return;
-          }
+        .dropdown-btn {
+            background: none;
+            border: none;
+            padding: 16px 24px;
+            cursor: pointer;
+            font-size: 15px;
+            color: white;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
 
-          results.style.display = "block";
+        .dropdown-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: #3498db;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
 
-          data.forEach(producto => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-              <a href="${producto.url}">
-                <img src="${producto.imagen}" alt="${producto.nombre}" style="width:30px; margin-right:8px;">
-                ${producto.nombre}
-              </a>`;
-            results.appendChild(li);
-          });
+        .dropdown-btn:hover::before,
+        .dropdown:hover .dropdown-btn::before {
+            width: 80%;
+        }
+
+        .dropdown-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #3498db;
+        }
+
+        .dropdown-btn::after {
+            content: '▼';
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown:hover .dropdown-btn::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 220px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-radius: 0 0 8px 8px;
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border-top: 3px solid #3498db;
+        }
+
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-content li {
+            list-style: none;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .dropdown-content li:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dropdown-content a::before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .dropdown-content a:hover::before {
+            left: 100%;
+        }
+
+        .dropdown-content a:hover {
+            background: #3498db;
+            color: white;
+            padding-left: 25px;
+        }
+
+        /* Colores diferenciados para categorías */
+        .nav-menu .dropdown:nth-child(6n+1) .dropdown-btn { border-left: 3px solid #e74c3c; }
+        .nav-menu .dropdown:nth-child(6n+2) .dropdown-btn { border-left: 3px solid #DB21D2; }
+        .nav-menu .dropdown:nth-child(6n+3) .dropdown-btn { border-left: 3px solid #2ecc71; }
+        .nav-menu .dropdown:nth-child(6n+4) .dropdown-btn { border-left: 3px solid #f39c12; }
+        .nav-menu .dropdown:nth-child(6n+5) .dropdown-btn { border-left: 3px solid #9b59b6; }
+        .nav-menu .dropdown:nth-child(6n+6) .dropdown-btn { border-left: 3px solid #1abc9c; }
+
+        .nav-menu .dropdown:nth-child(6n+1):hover .dropdown-btn { background: rgba(231, 76, 60, 0.1); }
+        .nav-menu .dropdown:nth-child(6n+2):hover .dropdown-btn { background: rgba(52, 152, 219, 0.1); }
+        .nav-menu .dropdown:nth-child(6n+3):hover .dropdown-btn { background: rgba(46, 204, 113, 0.1); }
+        .nav-menu .dropdown:nth-child(6n+4):hover .dropdown-btn { background: rgba(243, 156, 18, 0.1); }
+        .nav-menu .dropdown:nth-child(6n+5):hover .dropdown-btn { background: rgba(155, 89, 182, 0.1); }
+        .nav-menu .dropdown:nth-child(6n+6):hover .dropdown-btn { background: rgba(26, 188, 156, 0.1); }
+
+        /* Indicador de categoría activa */
+        .dropdown.active .dropdown-btn {
+            background: rgba(52, 152, 219, 0.15);
+            color: #3498db;
+        }
+
+        .dropdown.active .dropdown-btn::before {
+            width: 80%;
+        }
+
+        /* Contador de subcategorías */
+        .subcount {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        /* Responsive mejorado */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                flex-wrap: wrap;
+            }
+            
+            .dropdown-btn {
+                padding: 14px 18px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 12px;
+                padding: 10px;
+            }
+            
+            .search-bar {
+                max-width: 100%;
+                order: 3;
+                margin-top: 10px;
+            }
+            
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-btn {
+                width: 100%;
+                padding: 12px 15px;
+                font-size: 14px;
+                justify-content: space-between;
+            }
+            
+            .dropdown-content {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                display: none;
+                width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .dropdown.active .dropdown-content {
+                display: block;
+            }
+            
+            .dropdown-btn::after {
+                content: '▶';
+            }
+            
+            .dropdown.active .dropdown-btn::after {
+                content: '▼';
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="{% url 'Inicio' %}">
+                <img src="{% static 'img/Logo.png' %}" alt="Logo Surmonter">
+            </a>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="search" placeholder="Busca en toda la tienda...">
+            <ul id="results"></ul>
+            <button type="submit">
+                <img src="{% static 'img/Buscar.jpg' %}" alt="Buscar" />
+            </button>
+        </div>
+
+        <div class="container">
+            <div class="cart">
+                <a href="{% url 'ver_carrito' %}">
+                    <img src="{% static 'img/shopping-cart.png' %}" alt="Carrito de compras">
+                    <span id="contador-carrito"
+                          class="cart-counter"
+                          {% if not carrito_total_items %}style="display:none;"{% endif %}>
+                        {{ carrito_total_items }}
+                    </span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <ul class="nav-menu">
+            {% for categoria in menu_categorias %}
+            <li class="dropdown {% if request.path == categoria.get_absolute_url %}active{% endif %}">
+                <button class="dropdown-btn">
+                    {{ categoria.nombre }}
+                    {% if categoria.subcategorias.exists %}
+                    <span class="subcount">{{ categoria.subcategorias.count }}</span>
+                    {% endif %}
+                </button>
+                {% if categoria.subcategorias.exists %}
+                <ul class="dropdown-content">
+                    {% for sub in categoria.subcategorias.all %}
+                    {% if sub.activa %}
+                    <li>
+                        <a href="{% url 'mostrar_categoria' sub.nombre %}">
+                            {{ sub.nombre }}
+                            <small style="float: right; color: #666; font-size: 11px;">
+                                {{ sub.producto_set.count }} productos
+                            </small>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    <li><hr style="margin: 5px 0; border-color: #f8f9fa;"></li>
+                    <li>
+                        <a href="{% url 'mostrar_categoria' categoria.nombre %}" style="background: #f8f9fa; font-weight: bold; color: #2c3e50;">
+                            📁 Ver todos los productos
+                        </a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="dropdown-content">
+                    <li>
+                        <a href="{% url 'mostrar_categoria' categoria.nombre %}" style="background: #f8f9fa; font-weight: bold; color: #2c3e50;">
+                            📁 Ver productos de {{ categoria.nombre }}
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+            </li>
+            {% empty %}
+            <li style="color: white; padding: 15px 25px; text-align: center;">
+                No hay categorías disponibles
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const input = document.getElementById("search");
+        const results = document.getElementById("results");
+
+        input.addEventListener("input", () => {
+            const query = input.value.trim();
+            results.innerHTML = "";
+
+            if (query.length < 2) {
+                results.style.display = "none";
+                return;
+            }
+
+            fetch(`/buscar/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        results.innerHTML = "<li style='padding: 15px; text-align: center; color: #666;'>No se encontraron productos.</li>";
+                        results.style.display = "block";
+                        return;
+                    }
+
+                    results.style.display = "block";
+
+                    data.forEach(producto => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `
+                            <a href="${producto.url}">
+                                <img src="${producto.imagen}" alt="${producto.nombre}" style="width:35px; height:35px; object-fit:cover; border-radius:6px;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 14px;">${producto.nombre}</div>
+                                    <small style="color: #666; font-size: 12px;">${producto.categoria || ''}</small>
+                                </div>
+                            </a>`;
+                        results.appendChild(li);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error en búsqueda:', error);
+                    results.innerHTML = "<li style='padding: 15px; text-align: center; color: #dc3545;'>Error en la búsqueda</li>";
+                    results.style.display = "block";
+                });
         });
-    });
-  });
-</script>
 
+        // Cerrar resultados al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target) && !results.contains(e.target)) {
+                results.style.display = 'none';
+            }
+        });
+
+        // Mejorar experiencia móvil
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.dropdown-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const dropdown = this.parentElement;
+                    dropdown.classList.toggle('active');
+                    
+                    // Cerrar otros dropdowns
+                    document.querySelectorAll('.dropdown').forEach(other => {
+                        if (other !== dropdown) {
+                            other.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Debug info
+        console.log('🏪 Ecommerce cargado - {{ menu_categorias|length }} categorías activas');
+    });
+    </script>
+</body>
+</html>

@@ -34,7 +34,7 @@ def admin_login(request):
 def admin_logout(request):
     logout(request)
     messages.success(request, "Sesión cerrada con éxito.")
-    return redirect('Inicio')  # Cambia 'Inicio' si tu URL principal tiene otro nombre
+    return redirect('Inicio')
 
 @user_passes_test(es_admin, login_url='/admin-login/')
 def paneladmin(request):
@@ -124,7 +124,8 @@ def paneladmin(request):
         contexto.update({'producto': producto, 'bloque': 'eliminar'})
 
     elif accion == 'ventas':
-        contexto.update({'ventas': ventas, 'bloque': 'ventas'})
+        # Redirigir al nuevo panel de ventas
+        return redirect('panel_ventas')
 
     elif accion == 'categoria':
         form = CategoriaForm(request.POST or None)

@@ -99,7 +99,7 @@
   <div id="sidebar">
     <h4 class="text-center py-3">Panel Administrador</h4>
     <a href="{% url 'panel_admin' %}" class="{% if not request.GET.accion %}active{% endif %}">Productos</a>
-    <a href="{% url 'panel_admin' %}?accion=ventas" class="{% if request.GET.accion == 'ventas' %}active{% endif %}">Ventas</a>
+    <a href="{% url 'panel_ventas' %}" class="{% if request.resolver_match.url_name == 'panel_ventas' or request.resolver_match.url_name == 'detalle_venta' %}active{% endif %}">Ventas</a>
     <a href="{% url 'panel_admin' %}?accion=agregar" class="{% if request.GET.accion == 'agregar' %}active{% endif %}">Agregar Producto</a>
     <a href="{% url 'panel_admin' %}?accion=categoria" class="{% if request.GET.accion == 'categoria' %}active{% endif %}">Categorías</a>
     <a href="{% url 'admin_logout' %}" class="text-danger">

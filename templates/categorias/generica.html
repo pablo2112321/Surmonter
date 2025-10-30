@@ -120,17 +120,19 @@
   </div>
 </section>
 
+
+
 <div id="mensaje-alerta"></div>
 {% include 'reciclables/footer.html' %}
 
 <script>
-  function mostrarMensaje(mensaje) {
+  function mostrarMensaje(mensaje, tipo = 'success') {
     const div = document.createElement("div");
     div.textContent = mensaje;
     div.style.position = "fixed";
     div.style.bottom = "20px";
     div.style.right = "20px";
-    div.style.background = "#28a745";
+    div.style.background = tipo === 'success' ? "#28a745" : "#dc3545";
     div.style.color = "white";
     div.style.padding = "10px 20px";
     div.style.borderRadius = "5px";
@@ -147,6 +149,23 @@
       contador.textContent = totalItems;
       contador.style.display = totalItems > 0 ? "inline-block" : "none";
     }
+  }
+
+  // ✅ FUNCIÓN MEJORADA PARA OBTENER CSRF TOKEN
+  function getCSRFToken() {
+    // Buscar en todos los formularios
+    const csrfInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    if (csrfInput) {
+      return csrfInput.value;
+    }
+    
+    // Buscar en cookies como fallback
+    const cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('csrftoken='))
+      ?.split('=')[1];
+    
+    return cookieValue || '';
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -169,38 +188,54 @@
           tallaBtn.classList.add('selected');
           inputTalla.value = tallaBtn.dataset.talla;
         }
-        tallaBtn.blur(); // quitar foco para evitar color azul/gris
+        tallaBtn.blur();
         return;
       }
 
-      // Agregar al carrito con bloqueo para evitar doble clic
+      // Agregar al carrito
       if (btnAgregar) {
         event.preventDefault();
 
         if (btnAgregar.disabled) return;
         btnAgregar.disabled = true;
+        
+        // Cambiar texto del botón
+        const originalText = btnAgregar.textContent;
+        btnAgregar.textContent = "⏳ Agregando...";
 
         const form = btnAgregar.closest('.form-compra');
         const tallaInput = form.querySelector('.talla-input');
         const talla = tallaInput.value;
         const productoId = form.dataset.productoId;
-        const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        
+        // ✅ OBTENER CSRF TOKEN CORRECTAMENTE
+        const csrfToken = getCSRFToken();
 
         if (!talla) {
           alert("Por favor selecciona una talla antes de agregar al carrito.");
           btnAgregar.disabled = false;
+          btnAgregar.textContent = originalText;
           return;
         }
 
-        const formData = new FormData();
-        formData.append('talla', talla);
+        if (!csrfToken) {
+          mostrarMensaje("Error de seguridad. Por favor recarga la página.", 'error');
+          btnAgregar.disabled = false;
+          btnAgregar.textContent = originalText;
+          return;
+        }
 
         try {
+          // ✅ USAR FormData QUE MANEJA MEJOR EL CSRF
+          const formData = new FormData();
+          formData.append('talla', talla);
+          formData.append('csrfmiddlewaretoken', csrfToken);
+
           const response = await fetch(`/carrito/agregar/${productoId}/`, {
             method: 'POST',
             headers: {
-              'X-Requested-With': 'XMLHttpRequest',
-              'X-CSRFToken': csrfToken
+              'X-Requested-With': 'XMLHttpRequest'
+              // NO incluir X-CSRFToken aquí cuando usas FormData
             },
             body: formData
           });
@@ -208,18 +243,32 @@
           const data = await response.json();
 
           if (data.success) {
-            mostrarMensaje(`${data.nombre} (Talla ${data.talla}) agregado al carrito.`);
+            mostrarMensaje(`✅ ${data.nombre} (Talla ${data.talla}) agregado al carrito.`);
             actualizarContadorCarrito(data.carrito_total_items);
 
+            // Resetear formulario
             tallaInput.value = '';
             form.querySelectorAll('.talla-button').forEach(b => b.classList.remove('selected'));
+            
+            // Efecto de confirmación
+            btnAgregar.textContent = "✅ Agregado!";
+            setTimeout(() => {
+              btnAgregar.textContent = originalText;
+            }, 1000);
           } else {
-            mostrarMensaje("Ocurrió un error al agregar el producto.");
+            mostrarMensaje("❌ Error al agregar el producto al carrito.", 'error');
+            btnAgregar.textContent = originalText;
           }
-        } catch {
-          mostrarMensaje("No se pudo conectar al servidor.");
+        } catch (error) {
+          console.error('Error:', error);
+          mostrarMensaje("❌ No se pudo conectar al servidor.", 'error');
+          btnAgregar.textContent = originalText;
         } finally {
           btnAgregar.disabled = false;
+          // Asegurar que vuelva al texto original después de 2 segundos
+          setTimeout(() => {
+            btnAgregar.textContent = originalText;
+          }, 2000);
         }
       }
     });

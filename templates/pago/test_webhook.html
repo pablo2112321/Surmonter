@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Webhook MercadoPago</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .test-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .success { 
+            background: #d4edda; 
+            color: #155724;
+            border-left: 5px solid #28a745;
+        }
+        .error { 
+            background: #f8d7da; 
+            color: #721c24;
+            border-left: 5px solid #dc3545;
+        }
+        .card-header {
+            font-weight: 600;
+        }
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="text-center mb-4">
+            <h2 class="mb-2"><i class="bi bi-tools me-2"></i>Test Webhook MercadoPago</h2>
+            <p class="text-muted">Herramienta de desarrollo para probar webhooks manualmente</p>
+        </div>
+        
+        <!-- Tarjeta de Información -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Información del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-2">
+                            <strong><i class="bi bi-link-45deg me-2"></i>URL Webhook:</strong><br>
+                            <code class="small">{{ SITE_URL }}/pago/webhook/mercadopago/</code>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="mb-0">
+                            <strong><i class="bi bi-gear me-2"></i>Modo Actual:</strong><br>
+                            {% if MERCADOPAGO_USAR_PRODUCCION %}
+                                <span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>PRODUCCIÓN</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-safe me-1"></i>SANDBOX</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Prueba -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-play-circle me-2"></i>Ejecutar Prueba</h5>
+            </div>
+            <div class="card-body">
+                <form id="testForm" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-credit-card me-1"></i>Payment ID:
+                            </label>
+                            <input type="text" name="payment_id" class="form-control" 
+                                   placeholder="Ej: 130506864575" required>
+                            <div class="form-text">
+                                ID del pago que envía MercadoPago en el webhook
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="bi bi-receipt me-1"></i>ID de Venta:
+                            </label>
+                            <input type="number" name="external_reference" class="form-control" 
+                                   placeholder="Ej: 64" required>
+                            <div class="form-text">
+                                ID de la venta en tu sistema (debe existir)
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-sliders me-1"></i>Escenario de Prueba:
+                        </label>
+                        <select name="scenario" class="form-select" required>
+                            <option value="approved">✅ Aprobado - Marcar como pagado y reducir stock</option>
+                            <option value="rejected">❌ Rechazado - Marcar como rechazado</option>
+                            <option value="pending">⏳ En Proceso - Marcar como pendiente</option>
+                            <option value="cancelled">🚫 Cancelado - Marcar como cancelado</option>
+                        </select>
+                        <div class="form-text">
+                            Simula diferentes estados de pago para testing
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold">
+                        <i class="bi bi-lightning-charge me-2"></i>Ejecutar Prueba
+                    </button>
+                </form>
+                
+                <div id="result" class="result mt-4"></div>
+            </div>
+        </div>
+
+        <!-- Instrucciones -->
+        <div class="mt-4">
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="bi bi-book me-2"></i>Instrucciones de Uso:
+                    </h6>
+                    <ol class="small mb-0">
+                        <li class="mb-2">Obtén un <strong>Payment ID</strong> real de los logs de MercadoPago</li>
+                        <li class="mb-2">Ingresa el <strong>ID de una venta existente</strong> en tu sistema</li>
+                        <li class="mb-2">Selecciona el escenario que quieres simular</li>
+                        <li class="mb-0">Haz clic en "Ejecutar Prueba" para simular el webhook</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const resultDiv = document.getElementById('result');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            // Mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Procesando...';
+            resultDiv.style.display = 'none';
+            
+            try {
+                const formData = new FormData(form);
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Mostrar resultado
+                resultDiv.className = 'result ' + (response.ok ? 'success' : 'error');
+                resultDiv.innerHTML = `
+                    <h6 class="fw-bold">${response.ok ? '✅ Prueba Exitosa' : '❌ Error en la Prueba'}</h6>
+                    <hr>
+                    <pre class="mb-0">${JSON.stringify(data, null, 2)}</pre>
+                `;
+                resultDiv.style.display = 'block';
+                
+                // Scroll to result
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h6 class="fw-bold">❌ Error de Conexión</h6>
+                    <hr>
+                    <p class="mb-0">${error.message}</p>
+                `;
+                resultDiv.style.display = 'block';
+            } finally {
+                // Restaurar botón
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-lightning-charge me-2"></i>Ejecutar Prueba';
+            }
+        });
+    </script>
+</body>
+</html>

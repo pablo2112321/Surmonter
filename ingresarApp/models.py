@@ -10,6 +10,7 @@ class Producto(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     imagen = models.ImageField(upload_to='productos/')
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    activo = models.BooleanField(default=True)  # Agregar este campo
 
     def __str__(self):
         return self.nombre
