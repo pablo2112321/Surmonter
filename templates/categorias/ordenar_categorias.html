@@ -1,0 +1,593 @@
+{% extends 'adminpanel/paneladmin_base.html' %}
+{% load static %}
+
+{% block titulo %}Ordenar Categorías - Panel Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.ordenar-categorias-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.categorias-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* HEADER SIMPLE */
+.page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.page-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+/* STATS SIMPLES */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #343a40;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* CONTENEDOR PRINCIPAL */
+.categorias-column {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.categorias-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.categorias-header h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.categorias-body {
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* CATEGORÍA CARD */
+.categoria-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.categoria-card:active {
+    cursor: grabbing;
+}
+
+.categoria-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 3px 10px rgba(0,123,255,0.1);
+}
+
+.categoria-card.dragging {
+    opacity: 0.8;
+    transform: rotate(2deg);
+    border-color: #007bff;
+}
+
+.categoria-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.categoria-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.categoria-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #343a40;
+    margin: 0;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #6c757d;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.drag-handle:hover {
+    color: #007bff;
+    background: #e3f2fd;
+}
+
+.posicion-badge {
+    background: #6c757d;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* SUBCATEGORÍAS */
+.subcategorias-container {
+    margin-top: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.subcategorias-header {
+    background: #f8f9fa;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.subcategorias-header .info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #28a745;
+    font-weight: 600;
+}
+
+.subcategoria-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 15px;
+    background: white;
+    display: none;
+}
+
+.subcategoria-list.expanded {
+    display: flex;
+}
+
+.subcategoria-item {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 12px 15px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subcategoria-item:active {
+    cursor: grabbing;
+}
+
+.subcategoria-item:hover {
+    border-color: #28a745;
+    background: #f8fff9;
+}
+
+.subcategoria-item.dragging {
+    background: #e8f5e8;
+    transform: rotate(1deg);
+    border-color: #28a745;
+}
+
+.subcategoria-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.subcategoria-name {
+    font-weight: 500;
+    color: #495057;
+    margin: 0;
+}
+
+.subcategoria-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* SIDEBAR */
+.sidebar-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.actions-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+.actions-card h6 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* EFECTOS DRAG & DROP */
+.sortable-ghost {
+    opacity: 0.4;
+    background: #e3f2fd;
+    border: 1px dashed #007bff;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+    .categorias-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .ordenar-categorias-container {
+        padding: 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .categoria-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="ordenar-categorias-container">
+    <!-- HEADER -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1>🎯 Ordenar Categorías</h1>
+                <p class="mb-0">Arrastra y suelta para organizar el menú</p>
+            </div>
+            <a href="{% url 'panel_admin' %}?accion=categoria" class="btn btn-light">
+                ← Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ categorias_principales.count }}</div>
+            <div class="stat-label">Categorías Principales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="total-subcategorias">
+                {{ total_subcategorias }}
+            </div>
+            <div class="stat-label">Subcategorías Totales</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="live-counter">0</div>
+            <div class="stat-label">Cambios Realizados</div>
+        </div>
+    </div>
+
+    <div class="categorias-grid">
+        <!-- COLUMNA PRINCIPAL -->
+        <div class="categorias-column">
+            <div class="categorias-header">
+                <h5>📁 Categorías Principales</h5>
+            </div>
+            <div class="categorias-body">
+                <div id="categorias-principales">
+                    {% if categorias_principales %}
+                        {% for categoria in categorias_principales %}
+                        <div class="categoria-card" data-id="{{ categoria.id }}" data-type="principal">
+                            <div class="categoria-header">
+                                <div class="categoria-title">
+                                    <span class="drag-handle">↕️</span>
+                                    <h4 class="categoria-name">{{ categoria.nombre }}</h4>
+                                </div>
+                                <span class="posicion-badge">Posición {{ forloop.counter }}</span>
+                            </div>
+                            
+                            {% if categoria.subcategorias.all %}
+                            <div class="subcategorias-container">
+                                <div class="subcategorias-header" onclick="toggleSubcategorias(this)">
+                                    <div class="info">
+                                        <span>📂</span>
+                                        {{ categoria.subcategorias.all.count }} Subcategorías
+                                    </div>
+                                    <div class="toggle">▼</div>
+                                </div>
+                                <div class="subcategoria-list" id="subcategorias-{{ categoria.id }}">
+                                    {% for sub in categoria.subcategorias.all %}
+                                    <div class="subcategoria-item" data-id="{{ sub.id }}" data-type="subcategoria" data-padre="{{ categoria.id }}">
+                                        <div class="subcategoria-info">
+                                            <span class="drag-handle">↕️</span>
+                                            <span class="subcategoria-name">{{ sub.nombre }}</span>
+                                        </div>
+                                        <span class="subcategoria-badge">Pos {{ forloop.counter }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <p class="text-muted">No hay categorías para mostrar</p>
+                            <a href="{% url 'categoriasApp:crear_categoria' %}" class="btn btn-primary">
+                                ➕ Crear Primera Categoría
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar-column">
+            <!-- ACCIONES -->
+            <div class="actions-card">
+                <h6>🚀 Acciones</h6>
+                
+                <button class="action-btn btn btn-success" onclick="guardarOrden()">
+                    💾 Guardar Orden
+                </button>
+                
+                <button class="action-btn btn btn-primary" onclick="expandirTodo()">
+                    📂 Expandir Todo
+                </button>
+                
+                <button class="action-btn btn btn-secondary" onclick="colapsarTodo()">
+                    📁 Colapsar Todo
+                </button>
+
+                <div class="mt-3 p-3 bg-light rounded">
+                    <small class="text-muted">
+                        <strong>💡 Los cambios se guardan automáticamente</strong><br>
+                        El menú se actualizará en 5-10 minutos
+                    </small>
+                </div>
+            </div>
+
+            <!-- INSTRUCCIONES -->
+            <div class="actions-card">
+                <h6>💡 Cómo Ordenar</h6>
+                <div class="small text-muted">
+                    <p><strong>• Arrastra categorías</strong> para cambiar el orden</p>
+                    <p><strong>• Click en 📂</strong> para ver subcategorías</p>
+                    <p><strong>• Mueve subcategorías</strong> entre categorías</p>
+                    <p><strong>• Los cambios se guardan</strong> automáticamente</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+<script>
+let changeCounter = 0;
+
+// Inicializar drag & drop
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar categorías principales
+    new Sortable(document.getElementById('categorias-principales'), {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+        onStart: function(evt) {
+            evt.item.classList.add('dragging');
+        },
+        onEnd: function(evt) {
+            evt.item.classList.remove('dragging');
+            actualizarPosiciones('principal');
+        }
+    });
+
+    // Configurar subcategorías
+    {% for categoria in categorias_principales %}
+    {% if categoria.subcategorias.all %}
+    new Sortable(document.getElementById('subcategorias-{{ categoria.id }}'), {
+        animation: 150,
+        handle: '.drag-handle',
+        group: 'subcategorias',
+        ghostClass: 'sortable-ghost',
+        onStart: function(evt) {
+            evt.item.classList.add('dragging');
+        },
+        onAdd: function(evt) {
+            const nuevaCategoriaId = evt.to.parentElement.parentElement.querySelector('.categoria-card').dataset.id;
+            evt.item.dataset.padre = nuevaCategoriaId;
+            actualizarPosiciones('subcategoria', nuevaCategoriaId);
+        },
+        onEnd: function(evt) {
+            evt.item.classList.remove('dragging');
+            actualizarPosiciones('subcategoria', {{ categoria.id }});
+        }
+    });
+    {% endif %}
+    {% endfor %}
+});
+
+function toggleSubcategorias(element) {
+    const container = element.parentElement;
+    const list = container.querySelector('.subcategoria-list');
+    const toggle = container.querySelector('.toggle');
+    
+    if (list && toggle) {
+        list.classList.toggle('expanded');
+        toggle.textContent = list.classList.contains('expanded') ? '▲' : '▼';
+    }
+}
+
+function expandirTodo() {
+    document.querySelectorAll('.subcategoria-list').forEach(list => {
+        list.classList.add('expanded');
+    });
+    document.querySelectorAll('.subcategorias-header .toggle').forEach(toggle => {
+        toggle.textContent = '▲';
+    });
+}
+
+function colapsarTodo() {
+    document.querySelectorAll('.subcategoria-list').forEach(list => {
+        list.classList.remove('expanded');
+    });
+    document.querySelectorAll('.subcategorias-header .toggle').forEach(toggle => {
+        toggle.textContent = '▼';
+    });
+}
+
+function actualizarPosiciones(tipo, padreId = null) {
+    const container = tipo === 'principal' 
+        ? document.getElementById('categorias-principales')
+        : document.getElementById('subcategorias-' + padreId);
+    
+    if (!container) return;
+    
+    const elementos = container.querySelectorAll(`[data-type="${tipo}"]`);
+    
+    elementos.forEach((elemento, index) => {
+        const id = elemento.dataset.id;
+        const posicion = (index + 1) * 10;
+        
+        if (tipo === 'principal') {
+            guardarPosicion(id, posicion, 'null');
+            const badge = elemento.querySelector('.posicion-badge');
+            if (badge) badge.textContent = `Posición ${index + 1}`;
+        } else {
+            const actualPadreId = elemento.dataset.padre || padreId;
+            guardarPosicion(id, posicion, actualPadreId);
+            const badge = elemento.querySelector('.subcategoria-badge');
+            if (badge) badge.textContent = `Pos ${index + 1}`;
+        }
+    });
+    
+    changeCounter++;
+    document.getElementById('live-counter').textContent = changeCounter;
+}
+
+function guardarPosicion(categoriaId, nuevaPosicion, padreId) {
+    const formData = new FormData();
+    formData.append('categoria_id', categoriaId);
+    formData.append('nueva_posicion', nuevaPosicion);
+    formData.append('padre_id', padreId);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    
+    fetch('{% url "categoriasApp:actualizar_posicion_categoria" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('✅ Cambio guardado');
+        }
+    });
+}
+
+function guardarOrden() {
+    actualizarPosiciones('principal');
+    
+    {% for categoria in categorias_principales %}
+    {% if categoria.subcategorias.all %}
+    actualizarPosiciones('subcategoria', {{ categoria.id }});
+    {% endif %}
+    {% endfor %}
+    
+    alert('✅ Orden guardado correctamente');
+}
+</script>
+{% endblock %}

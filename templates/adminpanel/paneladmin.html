@@ -145,7 +145,14 @@
 
 <!-- Categorías -->
 {% if bloque == 'categoria' %}
-<h5 class="mb-4 mt-4">Nueva categoría o subcategoría</h5>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">Gestión de Categorías</h5>
+    <a href="{% url 'categoriasApp:ordenar_categorias' %}" class="btn btn-success">
+        🎯 Ordenar Categorías
+    </a>
+</div>
+
+<h6 class="mb-3 mt-4">Nueva categoría o subcategoría</h6>
 <form method="POST" class="mb-3">
     {% csrf_token %}
     {{ form.as_p }}
@@ -160,21 +167,19 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <strong class="fs-5">{{ c.nombre }}</strong>
+                <span class="badge bg-secondary ms-2">Pos: {{ c.posicion }}</span>
                 {% if c.subcategorias_ordenadas %}
                 <div class="mt-2">
                     {% for sub in c.subcategorias_ordenadas %}
                         <span class="badge bg-light text-dark border me-1 mb-1 p-2">
                             {{ sub.nombre }}
+                            <span class="badge bg-light text-dark ms-1">Pos: {{ sub.posicion }}</span>
                             <a href="{% url 'panel_admin' %}?accion=editarcat&id={{ sub.id }}" class="text-warning ms-1">
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <a href="{% url 'panel_admin' %}?accion=eliminarcat&id={{ sub.id }}" class="text-danger ms-1">
                                 <i class="bi bi-trash"></i>
                             </a>
-                            <!-- Flechas para mover subcategorías (futuro)
-                            <a href="{% url 'panel_admin' %}?accion=mover&mover_id={{ sub.id }}&direccion=up" class="text-secondary ms-1"><i class="bi bi-arrow-up"></i></a>
-                            <a href="{% url 'panel_admin' %}?accion=mover&mover_id={{ sub.id }}&direccion=down" class="text-secondary ms-1"><i class="bi bi-arrow-down"></i></a>
-                            -->
                         </span>
                     {% endfor %}
                 </div>
@@ -187,16 +192,18 @@
                 <a href="{% url 'panel_admin' %}?accion=eliminarcat&id={{ c.id }}" class="btn btn-sm btn-danger">
                     <i class="bi bi-trash"></i>
                 </a>
-                <!-- Flechas para mover categorías (futuro)
-                <a href="{% url 'panel_admin' %}?accion=mover&mover_id={{ c.id }}&direccion=up" class="btn btn-sm btn-secondary"><i class="bi bi-arrow-up"></i></a>
-                <a href="{% url 'panel_admin' %}?accion=mover&mover_id={{ c.id }}&direccion=down" class="btn btn-sm btn-secondary"><i class="bi bi-arrow-down"></i></a>
-                -->
             </div>
         </div>
     </div>
     {% empty %}
     <p class="text-muted">No hay categorías aún.</p>
     {% endfor %}
+</div>
+
+<!-- Mensaje informativo -->
+<div class="alert alert-info mt-4">
+    <strong>💡 Tip:</strong> Usa el botón <strong>"🎯 Ordenar Categorías"</strong> para arrastrar y soltar 
+    las categorías y subcategorías en el orden que prefieras.
 </div>
 {% endif %}
 

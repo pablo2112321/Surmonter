@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago en Proceso - {{ SITE_NAME }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .pending-container {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        .pending-icon {
+            font-size: 4rem;
+            color: #17a2b8;
+            margin-bottom: 1.5rem;
+        }
+        .spinner-pending {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #17a2b8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .product-img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="pending-container">
+        <div class="spinner-pending"></div>
+        
+        <h1 class="text-info mb-3">Pago en Proceso</h1>
+        
+        <p class="text-muted mb-4">
+            Estamos procesando tu pago. Esto puede tomar unos minutos. 
+            Te notificaremos por email cuando el proceso se complete.
+        </p>
+
+        {% if venta %}
+        <div class="alert alert-info mb-4">
+            <h6 class="alert-heading">Detalles de tu pedido:</h6>
+            <p class="mb-1"><strong>Orden #{{ venta.id }}</strong></p>
+            <p class="mb-1">Total: ${{ venta.total|floatformat:0|intcomma }}</p>
+            <p class="mb-0">Estado: En proceso de validación</p>
+            
+            {% if items %}
+            <div class="mt-2">
+                <small><strong>Productos:</strong> 
+                    {% for item in items|slice:":3" %}
+                        {{ item.producto_nombre }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                    {% if items|length > 3 %}...{% endif %}
+                </small>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="d-grid gap-2">
+            <a href="{% url 'Inicio' %}" class="btn btn-primary">
+                <i class="bi bi-house me-2"></i>Seguir Comprando
+            </a>
+        </div>
+
+        <div class="mt-4 pt-3 border-top">
+            <p class="text-muted small">
+                Si no recibes una confirmación en 24 horas, 
+                <a href="mailto:{{ EMAIL_CONTACTO }}">contáctanos</a>.
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

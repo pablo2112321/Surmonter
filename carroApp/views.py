@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from ingresarApp.models import Producto
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 def Carro(request):
     carrito_sesion = request.session.get('carrito', {})
@@ -50,6 +52,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from ingresarApp.models import Producto
 
+@csrf_exempt
 def agregar_al_carrito(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     carrito = request.session.get('carrito', {})
